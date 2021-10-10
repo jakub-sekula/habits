@@ -185,13 +185,14 @@ body {
 	display: flex;
 	flex-flow: column;
 	align-items: center;
-	justify-content: center;
+	justify-content: space-evenly;
 	width: 60px;
 	height: 100%;
 	grid-column: 3;
-	grid-row: 1 / span 2;
-	margin: 0;
+	grid-row: 1 / span 3;
 	line-height: 10px;
+	background-color: rgba(255,255,255,0.1);
+	box-shadow: inset 5px 0px 8px -10px #000;
 }
 
 .btn {
@@ -219,20 +220,20 @@ body {
 
 .bar-container {
 	display: flex;
-	width: 102%;
-	height: 10px;
+	width: 100%;
+	height: 100%;
 	background-color: white;
 	margin-top: auto;
-	border-radius: 0 0 15px 15px;
+	/*border-radius: 0 0 15px 15px;*/
 	box-shadow: inset 0px 11px 8px -10px #bbb;
-	grid-column: 1 / span 3;
+	grid-column: 1 / span 2;
 	grid-row: 3;
 }
 
 .bar-progress {
 	display: flex;
 	width: 20%;
-	border-radius: 0 5px 5px 15px;
+	/*border-radius: 0 5px 5px 15px;*/
 	mix-blend-mode: multiply;
 	border: none;
 	transition-duration: 0.3s;
