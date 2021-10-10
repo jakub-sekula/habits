@@ -34,4 +34,4 @@ function hideBackgroundImage(){
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
 
 window.onload = setRandomWidth;
-setInterval(setRandomWidth,1500);
+setInterval(setRandomWidth,5000);

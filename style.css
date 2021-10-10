@@ -187,6 +187,7 @@ body {
 	align-items: center;
 	justify-content: center;
 	width: 60px;
+	height: 100%;
 	grid-column: 3;
 	grid-row: 1 / span 2;
 	margin: 0;
@@ -219,7 +220,7 @@ body {
 .bar-container {
 	display: flex;
 	width: 102%;
-	height: 20px;
+	height: 10px;
 	background-color: white;
 	margin-top: auto;
 	border-radius: 0 0 15px 15px;
@@ -248,7 +249,7 @@ body {
 
 .btn-subtitle {
 	font-size: 10px;
-	margin: 10px 0 10px 15px;
+	margin: 10px 0 0 15px;
 	line-height: 10px;
 	grid-column: 1 / span 2;
 	grid-row: 2;
