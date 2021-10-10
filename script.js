@@ -8,9 +8,6 @@ function updateDate() {
 		+ "/" + currentDate.getFullYear();
 }
 
-window.onload = updateDate;
-
-
 function setRandomWidth(){
 	let bars = ["bar1","bar2","bar3","bar4","bar5","bar6","bar7","bar8","bar9","bar10"]
 	
@@ -32,6 +29,7 @@ function hideBackgroundImage(){
 }
 
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
+document.addEventListener('DOMContentLoaded', updateDate, false);
 
 window.onload = setRandomWidth;
 setInterval(setRandomWidth,5000);
