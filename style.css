@@ -4,9 +4,109 @@ body {
 
 :root {
 	--yellow: #FFE34E;
+	--yellow-text: #BEA000;
+	--yellow-bdr: #EEC900;
+
 	--teal: #23F2C1;
+	--teal-text: #099574;
+	--teal-bdr: #1ED8AC;
+
 	--pink: #FF4E8E;
+	--pink-text: #8E2B4F;
+	--pink-bdr: #E0407A;
+
+	--green: #00DB4A;
+	--green-text: #169541;
+	--green-bdr: #00DB4A;
+
+	--grey: #707070;
+	--grey-text: #BEBEBE;
+	--grey-bdr: #707070;
+
+	--blue: #4585E4;
+	--blue-text: #174486;
+	--blue-bdr: #417CD3;
+
+	--purple: #A237D4;
+	--purple-text: #D782FF;
+	--purple-bdr: #9836C7;
+
+	--lightblue: #4ED4FF;
+	--lightblue-text: #3490AE;
+	--lightblue-bdr: #47BDE3;
+
+	--straw: #E5FF9B;
+	--straw-text: #8B9E56;
+	--straw-bdr: #CAE186;
+
+	--orange: #FDB62B;
+	--orange-text: #BE8517;
+	--orange-bdr: #D29723;
 }
+
+.yellow {
+	background-color: var(--yellow);
+	color: var(--yellow-text);
+	border-color: var(--yellow-bdr) !important;
+}
+
+.teal {
+	background-color: var(--teal);
+	color: var(--teal-text);
+	border-color: var(--teal-bdr) !important;
+}
+
+.pink {
+	background-color: var(--pink);
+	color: var(--pink-text);
+	border-color: var(--pink-bdr) !important;
+}
+
+.green {
+	background-color: var(--green);
+	color: var(--green-text);
+	border-color: var(--green-bdr) !important;
+}
+
+.grey {
+	background-color: var(--grey);
+	color: var(--grey-text);
+	border-color: var(--grey-bdr) !important;
+}
+
+.blue {
+	background-color: var(--blue);
+	color: var(--blue-text);
+	border-color: var(--blue-bdr) !important;
+}
+
+.purple {
+	background-color: var(--purple);
+	color: var(--purple-text);
+	border-color: var(--purple-bdr) !important;
+}
+
+.lightblue {
+	background-color: var(--lightblue);
+	color: var(--lightblue-text);
+	border-color: var(--lightblue-bdr) !important;
+}
+
+.straw {
+	background-color: var(--straw);
+	color: var(--straw-text);
+	border-color: var(--straw-bdr) !important;
+}
+
+.orange {
+	background-color: var(--orange);
+	color: var(--orange-text);
+	border-color: var(--orange-bdr) !important;
+}
+
+
+
+
 
 .main-wrap {
 	display: flex;
@@ -21,9 +121,21 @@ body {
 	
 }
 
+.plus-sign {
+	display: flex;
+	flex-flow: column;
+	align-items: center;
+	justify-content: center;
+	width: 60px;
+	grid-column: 3;
+	grid-row: 1 / span 2;
+	margin: 0;
+	line-height: 10px;
+}
+
 .btn {
 	/*z-index: 1;*/
-	display: flex;
+	display: grid;
 	flex-flow: column;
 	justify-content: flex-start;
 	align-items: flex-start;
@@ -36,26 +148,28 @@ body {
 	letter-spacing: 0.15em;
 	line-height: 27px;
 	font-size: 1.5rem;
-	color: #BEA000;
 	transition-duration: 0.1s;
 	transition-timing-function: ease-in-out;
 	border: 1.5px solid;
 	user-select: none;
 	overflow: hidden;
+	grid-template-columns: repeat(auto-fit, minmax(75%, 1fr));
 }
 
 .bar-container {
 	display: flex;
 	width: 102%;
-	height: 10px;
+	height: 20px;
 	background-color: white;
 	margin-top: auto;
 	border-radius: 0 0 15px 15px;
 	box-shadow: inset 0px 11px 8px -10px #bbb;
+	grid-column: 1 / span 3;
+	grid-row: 3;
 }
 
 .bar-progress {
-	display: block;
+	display: flex;
 	width: 20%;
 	border-radius: 0 5px 5px 15px;
 	mix-blend-mode: multiply;
@@ -68,12 +182,16 @@ body {
 	font-size: 20px;
 	line-height: 10px;
 	margin: 15px 0 0 15px;
+	grid-column: span 1 / 2;
+	grid-row: 1;
 }
 
 .btn-subtitle {
 	font-size: 10px;
 	margin: 10px 0 10px 15px;
 	line-height: 10px;
+	grid-column: 1 / span 2;
+	grid-row: 2;
 }
 
 .btn:hover {
@@ -93,24 +211,6 @@ body {
 	justify-content: left;
 }
 
-.teal {
-	background-color: var(--teal);
-	color: #099574;
-	border-color: #1ED8AC;
-}
-
-.pink {
-	background-color: var(--pink);
-	color: #8E2B4F;
-	border-color: #E0407A;
-}
-
-.yellow {
-	background-color: var(--yellow);
-	color: #BEA000;
-	border-color:  #EEC900;
-}
-
 .heading {
 	margin-top: 5%;
 	margin-bottom: 5%;
@@ -119,11 +219,15 @@ body {
 	flex-flow: column;
 	justify-content:  center;
 	align-items: center;
-	font-size: 40px;
+	font-size: 2em;
 	line-height: 40px;
 	font-family: 'Karla';
 	color: #474747;
 	user-select: none;
+}
+
+.heading h1 {
+	font-family: "Playfair Display", serif;
 }
 
 .nav {
@@ -133,7 +237,7 @@ body {
 	color: #474747;
 	align-items: center;
 	justify-content: center;
-	font-size: 1.5em;
+	font-size: 1.2em;
 	margin: 2.5% 0 30px 0;
 }
 
