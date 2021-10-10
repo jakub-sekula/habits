@@ -4,7 +4,7 @@ function updateDate() {
 	let time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
 	document.getElementById("dateString").innerHTML = "TODAY'S DATE IS " + currentDate.getDate() + "/" + (currentDate.getMonth()+1)
 		+ "/" + currentDate.getFullYear();
-	document.getElementById("page-title").innerHTML = "MY HABITS: " + currentDate.getDate() + "/" + (currentDate.getMonth()+1)
+	document.getElementById("page-title").innerHTML = "MY HABITS | " + currentDate.getDate() + "/" + (currentDate.getMonth()+1)
 		+ "/" + currentDate.getFullYear();
 }
 
@@ -33,4 +33,5 @@ function hideBackgroundImage(){
 
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
 
-setInterval(setRandomWidth,2500);
+window.onload = setRandomWidth;
+setInterval(setRandomWidth,1500);
