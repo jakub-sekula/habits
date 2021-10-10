@@ -1,0 +1,38 @@
+.btn {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background-color: orangered;
+	width: 250px;
+	height: 100px;
+	border-radius: 15px;
+	margin:  0 10px 0 10px;
+	font-family: 'Karla', sans-serif;
+	letter-spacing: 0.15em;
+	line-height: 27px;
+	font-size: 1.5rem;
+	color: white;
+	transition-duration: 0.2s;
+	transition-timing-function: ease-in-out;
+}
+
+.btn:hover {
+	filter: drop-shadow(0px 0px 10px #d5d5d5);
+	transform: scale(1.05);
+}
+
+.blue {
+	background-color: skyblue;
+}
+
+.green {
+	background-color: seagreen;
+}
+
+
+.btn-wrap {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	height: 100vh;
+}
