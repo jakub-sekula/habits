@@ -1,8 +1,18 @@
 body {
-	background-color: beige;
+	/*background-color: beige;*/
+	background-image:
+		linear-gradient(to bottom, rgba(0,0,0,0.4) , rgba(0,0,0,0)),
+    url('img.jpg');
+	background-color: #141f32;
+	background-size: cover;
+	background-blend-mode: multiply;
+	transition-duration: 1s;
 }
 
 :root {
+	--nav-text-color: #fafafa;
+	/*--nav-text-color: #474747;*/
+
 	--yellow: #FFE34E;
 	--yellow-text: #BEA000;
 	--yellow-bdr: #EEC900;
@@ -105,13 +115,34 @@ body {
 }
 
 
+.add-habit-button {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	margin-top: 50px;
+	font-size: 12px;
+	font-family: "Klarna", sans-serif;
+	font-weight: 400;
+	color: var(--nav-text-color);
+	letter-spacing: 0.25em;
+	border: 1.5px solid var(--nav-text-color);
+	border-radius: 10px;
+	padding: 12px 15px 12px 15px;
+	filter: opacity(80%);
+	transition-duration: 0.1s;
+	transition-timing-function: ease-in-out;
+	user-select: none;
+}
 
+.add-habit-button:hover {
+	transform: scale(1.05);
+}
 
 
 .main-wrap {
 	display: flex;
 	flex-flow: column wrap;
-	padding: 2.5% 20% 5% 20%;
+	padding: 0 20% 0 20%;
 }
 
 .btn-wrap {
@@ -197,7 +228,7 @@ body {
 .btn:hover {
 	z-index: 999;
 	filter: drop-shadow(0px 0px 5px #6e6e6e);
-	transform: scale(1.075);
+	transform: scale(1.05);
 }
 
 .btn:focus {
@@ -222,7 +253,7 @@ body {
 	font-size: 2em;
 	line-height: 40px;
 	font-family: 'Karla';
-	color: #474747;
+	color: var(--nav-text-color);
 	user-select: none;
 }
 
@@ -234,7 +265,7 @@ body {
 	display: flex;
 	font-family: 'Karla';
 	letter-spacing: 0.22em;
-	color: #474747;
+	color: var(--nav-text-color);
 	align-items: center;
 	justify-content: center;
 	font-size: 1.2em;

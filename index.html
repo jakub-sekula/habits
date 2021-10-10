@@ -1,12 +1,11 @@
 <html>
 <head>
+	<title id="page-title">MY HABITS</title>
 	<link rel='stylesheet' href='style.css' type='text/css' media='all' />
 	<link rel="preconnect" href="https://fonts.googleapis.com">
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Karla:wght@700&display=swap" rel="stylesheet">
 	<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
-
-	<script src="script.js"></script>
 </head>
 <body>
 	<div class="main-wrap">
@@ -17,7 +16,7 @@
 		</div>
 		<div class="heading">
 			<h1 style="margin: 0.1em 0 0.2em 0; ">MY HABITS</h1>
-			<h6 id="dateString" onload="updateDate()" style="margin: 0.1em 0 0.2em 0; font-size: 20px; font-weight: 400;">TODAY'S DATE</h6>
+			<h6 id="dateString" style="margin: 0.1em 0 0.2em 0; font-size: 20px; font-weight: 400;">TODAY'S DATE</h6>
 		</div>
 		<div class="btn-wrap">
 			<div class="btn yellow">
@@ -129,6 +128,14 @@
 				</span>
 			</div>
 		</div>
+
+		<div class="btn-wrap">
+			<div class="add-habit-button">
+				<span id="addBtn">ADD HABIT</span>
+			</div>
+		</div>
 	</div>
 </body>
+
+<script src="script.js"></script>
 </html>

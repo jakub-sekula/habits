@@ -4,6 +4,8 @@ function updateDate() {
 	let time = currentDate.getHours() + ":" + currentDate.getMinutes() + ":" + currentDate.getSeconds();
 	document.getElementById("dateString").innerHTML = "TODAY'S DATE IS " + currentDate.getDate() + "/" + (currentDate.getMonth()+1)
 		+ "/" + currentDate.getFullYear();
+	document.getElementById("page-title").innerHTML = "MY HABITS: " + currentDate.getDate() + "/" + (currentDate.getMonth()+1)
+		+ "/" + currentDate.getFullYear();
 }
 
 window.onload = updateDate;
@@ -14,6 +16,7 @@ function setRandomWidth(){
 	
 
 	for (let i = 0; i<bars.length; i++){
+
 		let randomPercentage = 100 * Math.random() + 5;
 
 		if (randomPercentage > 100) {
@@ -23,4 +26,11 @@ function setRandomWidth(){
 		document.getElementById(bars[i]).style.width=randomPercentage+"%";
 	}
 }
+
+function hideBackgroundImage(){
+		document.body.style.backgroundImage = "none";
+}
+
+document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
+
 setInterval(setRandomWidth,2500);
