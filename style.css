@@ -29,6 +29,11 @@ body {
   	margin-bottom: 1% !important;
   	width: 100% !important;
   }
+
+  .add-habit-button{
+  	margin-top: 10px!important;
+  	flex-direction: row !important;
+  }
 }
 
 
@@ -148,7 +153,7 @@ body {
 	display: flex;
 	justify-content: center;
 	align-items: center;
-	margin-top: 50px;
+	margin: 40px 10px 0 10px;
 	font-size: 12px;
 	font-family: "Klarna", sans-serif;
 	font-weight: 400;

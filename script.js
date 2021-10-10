@@ -28,7 +28,12 @@ function hideBackgroundImage(){
 		document.body.style.backgroundImage = "none";
 }
 
+function showBackgroundImage(){
+		document.body.style.backgroundImage = "linear-gradient(to bottom, rgba(0,0,0,0.4) , rgba(0,0,0,0)), url(\'img.jpg\')"
+}
+
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
+document.getElementById("removeBtn").addEventListener("click", showBackgroundImage)
 document.addEventListener('DOMContentLoaded', updateDate, false);
 
 window.onload = setRandomWidth;
