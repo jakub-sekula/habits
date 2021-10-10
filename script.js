@@ -1,3 +1,5 @@
+var r = document.querySelector(':root');
+
 function updateDate() {
 	let currentDate = new Date();
 	console.log(currentDate)
@@ -25,11 +27,17 @@ function setRandomWidth(){
 }
 
 function hideBackgroundImage(){
+		document.body.style.backgroundColor = "#141f32"
 		document.body.style.backgroundImage = "none";
+		r.style.setProperty('--nav-text-color', 'white')
+
+
 }
 
 function showBackgroundImage(){
-		document.body.style.backgroundImage = "linear-gradient(to bottom, rgba(0,0,0,0.4) , rgba(0,0,0,0)), url(\'img.jpg\')"
+		document.body.style.backgroundColor = "beige"
+		r.style.setProperty('--nav-text-color', '#474747')
+		//document.body.style.backgroundImage = "linear-gradient(to bottom, rgba(0,0,0,0.4) , rgba(0,0,0,0)), url(\'img.jpg\')"
 }
 
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
