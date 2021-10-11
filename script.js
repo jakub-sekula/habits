@@ -45,4 +45,4 @@ document.getElementById("removeBtn").addEventListener("click", showBackgroundIma
 document.addEventListener('DOMContentLoaded', updateDate, false);
 
 window.onload = setRandomWidth;
-setInterval(setRandomWidth,5000);
+setInterval(setRandomWidth,2500);
