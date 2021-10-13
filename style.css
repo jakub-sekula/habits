@@ -6,7 +6,7 @@ body {
 	background-color: #141f32;
 	background-size: cover;
 	background-blend-mode: multiply;
-	transition-duration: 1s;
+	transition-duration: 0.3s;
 	font-family: 	"Karla", sans-serif;
 	font-size: 	18px;
 }
@@ -133,6 +133,7 @@ body {
 	transition-duration: 0.1s;
 	transition-timing-function: ease-in-out;
 	user-select: none;
+	text-align: center;
 }
 
 .add-habit-button:hover {
