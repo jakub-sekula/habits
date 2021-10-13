@@ -56,6 +56,7 @@ document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
 document.getElementById("removeBtn").addEventListener("click", showBackgroundImage)
 document.getElementById("showPopupButton").addEventListener("click", showPopup)
 document.getElementById("hidePopupButton").addEventListener("click", hidePopup)
+document.getElementById("dark-overlay").addEventListener("click", hidePopup)
 document.addEventListener('DOMContentLoaded', updateDate, false);
 
 window.onload = setRandomWidth;

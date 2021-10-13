@@ -36,6 +36,10 @@ body {
   	margin-bottom: 2rem!important;
   	flex-direction: row !important;
   }
+
+  .card {
+  	margin: 5%;
+  }
 }
 
 
@@ -143,13 +147,14 @@ body {
 .main-wrap {
 	display: flex;
 	flex-flow: column wrap;
-	padding: 0 20% 0 20%;
+	padding: 0 5%;
 }
 
 .btn-wrap {
 	display: flex;
 	justify-content: center;
 	align-items: center;
+	width: 100%;
 	
 }
 
