@@ -42,9 +42,7 @@ function showBackgroundImage(){
 
 function showPopup(){
 	document.getElementById("popup-overlay").style.display = "flex";
-	setTimeout(function() {
-		document.getElementById("popup-overlay").style.opacity = "1";
-	},10);
+	setTimeout(function() {document.getElementById("popup-overlay").style.opacity = "1";},10);
 }
 
 function hidePopup(){
