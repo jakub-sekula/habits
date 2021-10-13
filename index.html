@@ -1,3 +1,4 @@
+<!DOCTYPE html>
 <html>
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
@@ -9,12 +10,34 @@
 	<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
 </head>
 <body>
+	<div id="popup-overlay" class="popup-overlay">
+		<div class="card">
+				<span><strong>What flavour you want bro?</strong></span>
+				<ul>
+					<li>CHOCCY milk</li>
+					<li>INTENSE vanilla</li>
+					<li>SUPER strawberry</li>
+					<li>KURWA kiwi</li>
+					<li>FANTASTIC fruits? idk</li>
+				</ul>
+				<form style="width: 75%" tabindex="1">
+ 				 	<label for="fname">First name:</label><br>
+				 	<input type="text" id="fname" name="fname"><br>
+  					<label for="lname">Last name:</label><br>
+ 				 	<input type="text" id="lname" name="lname">
+ 				 	<button type="button" id="hidePopupButton" value="yeah sounds sick idc">yeah sounds sick idc</button>
+				</form>
+						
+		</div>
+		<div class="dark-overlay"></div>
+	</div>
+	
 	<div class="main-wrap">
-		<div class="nav">
+		<nav class="nav">
 			<h6 tabindex="0">ACCOUNT</h6>
 			<h6 tabindex="0">STATS</h6>
 			<h6 tabindex="0">ABOUT</h6>
-		</div>
+		</nav>
 		<div class="heading">
 			<h1 style="margin: 0.1em 0 0.2em 0; ">MY HABITS</h1>
 			<h6 id="dateString" class="subheading">TODAY'S DATE</h6>
@@ -25,6 +48,9 @@
 			</div>
 			<div id="removeBtn" class="add-habit-button" tabindex="0">
 				<span>LIGHT MODE</span>
+			</div>
+			<div id="showPopupButton" class="add-habit-button" tabindex="0">
+				<span>SHOW POPUP</span>
 			</div>
 		</div>
 		<div class="btn-wrap">
@@ -121,8 +147,6 @@
 				<span class="plus-sign">+</span>
 			</div>
 		</div>
-
-		
 	</div>
 </body>
 
