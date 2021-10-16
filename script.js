@@ -50,8 +50,8 @@ function hidePopup(){
 	setTimeout(function(){document.getElementById("popup-overlay").style.display = "none";},300);	
 }
 
-function positionHabitCard(buttonID) {
-	var habit = document.getElementById(buttonID.toString());
+function positionHabitCard() {
+	var habit = document.getElementById("btn1");
 	var card = document.getElementById("habit-card-1");
 
 	var habit_position = habit.getBoundingClientRect();
@@ -71,13 +71,29 @@ function positionHabitCard(buttonID) {
 	card.style.top = position_Y;
 }
 
-window.addEventListener("resize", positionHabitCard("btn1"));
-document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
-document.getElementById("removeBtn").addEventListener("click", showBackgroundImage)
-document.getElementById("showPopupButton").addEventListener("click", showPopup)
-document.getElementById("hidePopupButton").addEventListener("click", hidePopup)
-document.getElementById("dark-overlay").addEventListener("click", hidePopup)
+function showHabitCard(){
+	var overlay = document.getElementById("habit-overlay");
+	overlay.style.display = "flex";
+	positionHabitCard();
+	overlay.style.opacity = "1";
+}
+
+function hideHabitCard(){
+	var overlay = document.getElementById("habit-overlay");
+	overlay.style.opacity = "0";
+	setTimeout(function(){overlay.style.display = "none";},300)	
+}
+
+window.addEventListener("resize", positionHabitCard);
+document.getElementById("addBtn").addEventListener("click", hideBackgroundImage);
+document.getElementById("btn1").addEventListener("click", showHabitCard);
+document.getElementById("removeBtn").addEventListener("click", showBackgroundImage);
+document.getElementById("showPopupButton").addEventListener("click", showPopup);
+document.getElementById("hidePopupButton").addEventListener("click", hidePopup);
+document.getElementById("dark-overlay").addEventListener("click", hidePopup);
+document.getElementById("habit-overlay").addEventListener("click", hideHabitCard);
 document.addEventListener('DOMContentLoaded', updateDate, false);
+document.addEventListener('DOMContentLoaded', positionHabitCard, false);
 
 window.onload = setRandomWidth;
 setInterval(setRandomWidth,2500);
