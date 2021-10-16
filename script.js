@@ -72,26 +72,45 @@ function positionHabitCard() {
 }
 
 function showHabitCard(){
+	var card = document.getElementById("habit-card-1")
 	var overlay = document.getElementById("habit-overlay");
 	overlay.style.display = "flex";
+	card.style.transform = "scale(1)";
 	positionHabitCard();
+	card.style.transform = "scale(0)";
 	overlay.style.opacity = "1";
+	setTimeout(function(){card.style.opacity = "1"; card.style.transform = "scale(1)"},150);
 }
 
 function hideHabitCard(){
+	var card = document.getElementById("habit-card-1");
 	var overlay = document.getElementById("habit-overlay");
 	overlay.style.opacity = "0";
+	setTimeout(function(){card.style.opacity = "0"; card.style.transform = "scale(0.8)"},5);
 	setTimeout(function(){overlay.style.display = "none";},300)	
+	card.style.transform = "scale(1)";
 }
 
-window.addEventListener("resize", positionHabitCard);
+var buttons = document.getElementsByClassName("btn");
+
+function addListenersToAllBtns() {
+	for (let i = 0; i<2; i++){
+		btn_id = buttons[i].getAttribute("id");
+		document.getElementById(btn_id).addEventListener("click",showHabitCard);
+	}
+}
+
+
+addListenersToAllBtns();
+
+window.addEventListener("resize", positionHabitCard)
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage);
 document.getElementById("btn1").addEventListener("click", showHabitCard);
 document.getElementById("removeBtn").addEventListener("click", showBackgroundImage);
 document.getElementById("showPopupButton").addEventListener("click", showPopup);
 document.getElementById("hidePopupButton").addEventListener("click", hidePopup);
 document.getElementById("dark-overlay").addEventListener("click", hidePopup);
-document.getElementById("habit-overlay").addEventListener("click", hideHabitCard);
+document.getElementById("dark-overlay-habit").addEventListener("click", hideHabitCard);
 document.addEventListener('DOMContentLoaded', updateDate, false);
 document.addEventListener('DOMContentLoaded', positionHabitCard, false);
 

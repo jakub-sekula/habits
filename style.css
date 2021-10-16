@@ -118,7 +118,7 @@ body {
 	bottom: 0;
 	left: 0;
 	right: 0;
-	transition-duration: 	0.2s;
+	transition-duration: 100ms;
 	transition-timing-function: 	ease-in-out;
 	opacity:0;
 }
@@ -133,10 +133,10 @@ body {
     overflow: hidden;
     position: absolute;
     box-shadow: 0 8px 5px -2px rgb(0 0 0 / 20%);
-	/* transition-duration: 	0.2s;
-	transition-timing-function: 	ease-in-out; */
-
-}
+	transition: 150ms ease-in-out;
+	transform-origin: center center;
+	opacity: 0;
+}	
 
 /* .habit-card::before {
 	  position: absolute;
@@ -153,7 +153,7 @@ body {
 	padding: 10px;
 	height: 100%;
 	width: 33.33%;
-	background: var(--green);
+	background: var(--yellow);
 	box-sizing: border-box;
 	overflow: hidden;
 	/*box-shadow: inset -5px 0 5px 5px #000;*/
