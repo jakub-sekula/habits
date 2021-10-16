@@ -41,6 +41,21 @@ body {
   	margin: 5%;
   }
 
+  .habit-card {
+	  flex-direction: column;
+	  width:90%!important;
+  }
+
+  .habit-card-side {
+	  width: 100%!important;
+  }
+
+  .habit-card-info {
+	  box-sizing: border-box !important;
+	  width: 100% !important;
+	  padding: 0 10% !important;
+  }
+
 }
 
 .dark-overlay {

@@ -4,6 +4,10 @@ var buttons = document.getElementsByClassName("btn");
 var firstClick=1;
 var buttonIDs = [];
 
+document.addEventListener('DOMContentLoaded', updateDate, false);
+window.onload = setRandomWidth;
+setInterval(setRandomWidth,2500);
+
 function updateDate() {
 	let currentDate = new Date();
 	console.log(currentDate)
@@ -16,7 +20,6 @@ function updateDate() {
 
 function setRandomWidth(){
 	let bars = ["bar1","bar2","bar3","bar4","bar5","bar6","bar7","bar8","bar9","bar10"]
-	
 
 	for (let i = 0; i<bars.length; i++){	
 		
@@ -59,9 +62,11 @@ var clickedButtonID = null;
 var clickedButtonColour = null;
 var clickedButtonTitle = null;
 
+addListenersToAllBtns();
+
 function addListenersToAllBtns() {
 	for (let i = 0; i<buttons.length; i++){
-		let btn_id = (Math.floor(Math.random()*1e7)).toString();
+		let btn_id = guidGenerator(); //(Math.floor(Math.random()*1e7)).toString();
 
 		buttonIDs[i]=btn_id;
 		buttons[i].setAttribute("id",btn_id);
@@ -105,9 +110,13 @@ function showHabitCard(){
 	let card = document.getElementById("habit-card-1");
 	let cardSide = document.getElementById("habit-card-side");
 	let cardTitle = document.getElementById("habit-card-title");
+	let overlay = document.getElementById("habit-overlay");
+
+	//set card colour and title
 	cardTitle.innerHTML = clickedButtonTitle;	
 	cardSide.className = "habit-card-side " + clickedButtonColour;
-	let overlay = document.getElementById("habit-overlay");
+
+	//animate the card opening
 	overlay.style.display = "flex";
 	card.style.transform = "scale(1)";
 	positionHabitCard();
@@ -125,8 +134,15 @@ function hideHabitCard(){
 	card.style.transform = "scale(1)";
 }
 
-addListenersToAllBtns();
 
+//unique ID generator function to give all buttons a random ID on page load
+function guidGenerator() {
+    var S4 = function() {
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);
+    };
+    //return (S4()+S4()+"-"+S4()+"-"+S4()+"-"+S4()+"-"+S4()+S4()+S4());
+	return (S4()+S4()+S4()+S4());
+}
 
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage);
 document.getElementById("removeBtn").addEventListener("click", showBackgroundImage);
@@ -134,12 +150,3 @@ document.getElementById("showPopupButton").addEventListener("click", showPopup);
 document.getElementById("hidePopupButton").addEventListener("click", hidePopup);
 document.getElementById("dark-overlay").addEventListener("click", hidePopup);
 document.getElementById("dark-overlay-habit").addEventListener("click", hideHabitCard);
-document.addEventListener('DOMContentLoaded', updateDate, false);
-
-
-
-
-
-
-window.onload = setRandomWidth;
-setInterval(setRandomWidth,2500);
