@@ -42,20 +42,19 @@ body {
   }
 }
 
-
 .dark-overlay {
 	display: 	flex;
 	background-color: black;
-	filter: opacity(50%);
+	filter: opacity(25%);
 	position: fixed;
 	top: 0;
 	left: 0;
 	bottom: 0;
 	right: 0;
-	z-index: 3;
+	z-index: 1;
 }
 
-.card {
+.popup-card {
 	display: 	flex;
 	flex-flow: 	column;
 	justify-content: 	center;
@@ -68,12 +67,12 @@ body {
 	z-index: 	6;
 }
 
-.card ul {
+.popup-card ul {
 	padding: 	0;
 	line-height: 	30px;
 }
 
-.card input{
+.popup-card input{
 	width: 100%;
   border-radius: 5px;
   padding: 10px;
@@ -83,7 +82,7 @@ body {
   margin-bottom: 5px;
 }
 
-.card button{
+.popup-card button{
 	width: 100%;
   border-radius: 5px;
   padding: 10px;
@@ -108,13 +107,84 @@ body {
 	transition-timing-function: 	ease-in-out;
 }
 
+.habit-overlay {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	z-index: 1;
+	top: 0;
+	bottom: 0;
+	left: 0;
+	right: 0;
+	transition-duration: 	0.2s;
+	transition-timing-function: 	ease-in-out;
+}
+
+.habit-card {
+	display: flex;
+    width: 400px;
+    height: 300px;
+    background-color: white;
+    z-index: 3;
+    border-radius: 20px;
+    overflow: hidden;
+    position: absolute;
+    /* top: 366px;
+    left: 481px;
+    transform: translate(-48.5px, -115px); */
+    box-shadow: 0 8px 5px -2px rgb(0 0 0 / 20%);
+}
+
+/* .habit-card::before {
+	  position: absolute;
+    bottom: 0;
+    top: 0;
+    width: 200px;
+    background-color: red;
+    content: '';
+    right: 0;
+    opacity: 0.5;
+} */
+
+.habit-card-side {
+	padding: 10px;
+	height: 100%;
+	width: 33.33%;
+	background: var(--green);
+	box-sizing: border-box;
+	overflow: hidden;
+	/*box-shadow: inset -5px 0 5px 5px #000;*/
+}
+
+.habit-card-info {
+	display: flex;
+	flex-direction: column;
+	width: 66.67%;
+	padding: 10px;
+}
+
+.habit-buttons-container {
+	display: flex;
+	margin-top: auto;
+}
+
+
+.habit-buttons-container li {
+	display: inline-block;
+}
+
+.habit-buttons-container li:hover {
+	font-weight: 700;
+	cursor: pointer;
+
+}
+ 
 .subheading {
 	margin: 0.1em 0 0.2em 0;
 	font-size: 20px;
 	font-weight: 400;
 }
-
-
 
 .add-habit-button {
 	justify-content: center;
@@ -144,7 +214,6 @@ body {
 	transform: scale(1.05);
 }
 
-
 .main-wrap {
 	display: flex;
 	flex-flow: column wrap;
@@ -172,7 +241,6 @@ body {
 	background-color: rgba(255,255,255,0.1);
 	box-shadow: inset 5px 0px 8px -10px #000;
 }
-
 
 .btn {
 	/*z-index: 1;*/
@@ -296,7 +364,6 @@ body {
 	margin: 0 20px 0 20px;
 	font-weight: 400;
 }
-
 
 :root {
 	--nav-text-color: #fafafa;

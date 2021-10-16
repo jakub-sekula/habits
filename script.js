@@ -14,13 +14,13 @@ function setRandomWidth(){
 	let bars = ["bar1","bar2","bar3","bar4","bar5","bar6","bar7","bar8","bar9","bar10"]
 	
 
-	for (let i = 0; i<bars.length; i++){
-
-		let randomPercentage = 100 * Math.random() + 5;
-
-		if (randomPercentage > 100) {
-			randomPercentage = 100;
-		}
+	for (let i = 0; i<bars.length; i++){	
+		
+		let randomPercentage = 100 * Math.random() + 5;	
+		
+		if (randomPercentage > 100) {	
+			randomPercentage = 100;	
+		}	
 
 		document.getElementById(bars[i]).style.width=randomPercentage+"%";
 	}
@@ -50,6 +50,28 @@ function hidePopup(){
 	setTimeout(function(){document.getElementById("popup-overlay").style.display = "none";},300);	
 }
 
+function positionHabitCard(buttonID) {
+	var habit = document.getElementById(buttonID.toString());
+	var card = document.getElementById("habit-card-1");
+
+	var habit_position = habit.getBoundingClientRect();
+	var card_position = card.getBoundingClientRect();
+
+	var scroll_offset = document.body.getBoundingClientRect().top;
+
+	var translate_X = -1*((card_position.width/2)-(habit_position.width/2));
+	var translate_Y = -1*((card_position.height/2)-(habit_position.height/2));
+	var x = habit_position.left;
+	var y = habit_position.top - scroll_offset;
+
+	var position_X = (Math.floor(x + translate_X)).toString()+"px";
+	var position_Y = (Math.floor(y + translate_Y)).toString()+"px";
+
+	card.style.left = position_X;
+	card.style.top = position_Y;
+}
+
+window.addEventListener("resize", positionHabitCard("btn1"));
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage)
 document.getElementById("removeBtn").addEventListener("click", showBackgroundImage)
 document.getElementById("showPopupButton").addEventListener("click", showPopup)
