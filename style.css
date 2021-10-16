@@ -44,15 +44,18 @@ body {
   .habit-card {
 	  flex-direction: column;
 	  width:90%!important;
+	  min-height: 300px;
   }
 
   .habit-card-side {
 	  width: 100%!important;
+	  height: 20%!important;
   }
 
   .habit-card-info {
 	  box-sizing: border-box !important;
 	  width: 100% !important;
+	  height: 80%!important;
 	  padding: 0 10% !important;
   }
 
@@ -141,11 +144,11 @@ body {
 .habit-card {
 	display: flex;
     width: 400px;
-    height: 300px;
+    height: 250px;
     background-color: white;
     z-index: 3;
     border-radius: 20px;
-    overflow: hidden;
+    overflow: auto;
     position: absolute;
     box-shadow: 0 8px 5px -2px rgb(0 0 0 / 20%);
 	transition: 150ms ease-in-out;
@@ -167,18 +170,19 @@ body {
 .habit-card-side {
 	padding: 10px;
 	height: 100%;
-	width: 33.33%;
+	width: 20%;
 	background: var(--yellow);
 	box-sizing: border-box;
 	overflow: hidden;
-	/*box-shadow: inset -5px 0 5px 5px #000;*/
+	box-shadow: inset -8px 0px 8px -10px #000;
 }
 
 .habit-card-info {
 	display: flex;
 	flex-direction: column;
-	width: 66.67%;
+	width: 80%;
 	padding: 10px;
+	box-sizing: border-box;
 }
 
 .habit-buttons-container {
