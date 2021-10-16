@@ -1,4 +1,8 @@
 var r = document.querySelector(':root');
+var buttons = document.getElementsByClassName("btn");
+
+var firstClick=1;
+var buttonIDs = [];
 
 function updateDate() {
 	let currentDate = new Date();
@@ -50,11 +54,37 @@ function hidePopup(){
 	setTimeout(function(){document.getElementById("popup-overlay").style.display = "none";},300);	
 }
 
+// HABIT CARD FUNCTIONS
+var clickedButtonID = null;
+var clickedButtonColour = null;
+var clickedButtonTitle = null;
+
+function addListenersToAllBtns() {
+	for (let i = 0; i<buttons.length; i++){
+		let btn_id = (Math.floor(Math.random()*1e7)).toString();
+
+		buttonIDs[i]=btn_id;
+		buttons[i].setAttribute("id",btn_id);
+
+		buttons[i].addEventListener("click",function(){if (firstClick==1){firstClick=0;window.addEventListener("resize", positionHabitCard)
+		document.addEventListener('DOMContentLoaded', positionHabitCard, false);}});
+
+		buttons[i].addEventListener("click",function(){
+			clickedButtonID = btn_id; 
+			clickedButtonColour = buttons[i].getAttribute("class").split(" ")[1]; 
+			clickedButtonTitle = buttons[i].childNodes[1].innerHTML;
+			console.log("The ID of the clicked button is: ", clickedButtonID, "\n",
+				'The colour of the clicked button is ', clickedButtonColour)
+			});
+		buttons[i].addEventListener("click",showHabitCard);
+	}
+}
+
 function positionHabitCard() {
-	var habit = document.getElementById("btn1");
+	var habit_button = document.getElementById(clickedButtonID);
 	var card = document.getElementById("habit-card-1");
 
-	var habit_position = habit.getBoundingClientRect();
+	var habit_position = habit_button.getBoundingClientRect();
 	var card_position = card.getBoundingClientRect();
 
 	var scroll_offset = document.body.getBoundingClientRect().top;
@@ -72,8 +102,12 @@ function positionHabitCard() {
 }
 
 function showHabitCard(){
-	var card = document.getElementById("habit-card-1")
-	var overlay = document.getElementById("habit-overlay");
+	let card = document.getElementById("habit-card-1");
+	let cardSide = document.getElementById("habit-card-side");
+	let cardTitle = document.getElementById("habit-card-title");
+	cardTitle.innerHTML = clickedButtonTitle;	
+	cardSide.className = "habit-card-side " + clickedButtonColour;
+	let overlay = document.getElementById("habit-overlay");
 	overlay.style.display = "flex";
 	card.style.transform = "scale(1)";
 	positionHabitCard();
@@ -91,28 +125,21 @@ function hideHabitCard(){
 	card.style.transform = "scale(1)";
 }
 
-var buttons = document.getElementsByClassName("btn");
-
-function addListenersToAllBtns() {
-	for (let i = 0; i<2; i++){
-		btn_id = buttons[i].getAttribute("id");
-		document.getElementById(btn_id).addEventListener("click",showHabitCard);
-	}
-}
-
-
 addListenersToAllBtns();
 
-window.addEventListener("resize", positionHabitCard)
+
 document.getElementById("addBtn").addEventListener("click", hideBackgroundImage);
-document.getElementById("btn1").addEventListener("click", showHabitCard);
 document.getElementById("removeBtn").addEventListener("click", showBackgroundImage);
 document.getElementById("showPopupButton").addEventListener("click", showPopup);
 document.getElementById("hidePopupButton").addEventListener("click", hidePopup);
 document.getElementById("dark-overlay").addEventListener("click", hidePopup);
 document.getElementById("dark-overlay-habit").addEventListener("click", hideHabitCard);
 document.addEventListener('DOMContentLoaded', updateDate, false);
-document.addEventListener('DOMContentLoaded', positionHabitCard, false);
+
+
+
+
+
 
 window.onload = setRandomWidth;
 setInterval(setRandomWidth,2500);
