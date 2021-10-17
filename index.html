@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=0">
 	<title id="page-title">MY HABITS | DATE</title>
@@ -8,6 +9,7 @@
 	<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 	<link href="https://fonts.googleapis.com/css2?family=Karla&display=swap" rel="stylesheet">
 </head>
+
 <body>
 	<!-- General purpose pop-up, will use this later to make the login/signup card -->
 	<div id="popup-overlay" class="popup-overlay">
@@ -20,17 +22,17 @@
 				<li>KURWA kiwi</li>
 				<li>FANTASTIC fruits? idk</li>
 			</ul>
-			<form style="width: 75%"`>
- 			 	<label for="fname">First name:</label><br>
-				 	<input type="text" id="fname" name="fname"><br>
-  					<label for="lname">Last name:</label><br>
- 				 	<input type="text" id="lname" name="lname">
- 				 	<button type="button" id="hidePopupButton" value="yeah sounds sick idc">yeah sounds sick idc</button>
-			</form>				
+			<form style="width: 75%" `>
+				<label for="fname">First name:</label><br>
+				<input type="text" id="fname" name="fname"><br>
+				<label for="lname">Last name:</label><br>
+				<input type="text" id="lname" name="lname">
+				<button type="button" id="hidePopupButton" value="yeah sounds sick idc">yeah sounds sick idc</button>
+			</form>
 		</div>
 		<div id="dark-overlay" class="dark-overlay"></div>
 	</div>
-	
+
 	<!-- Habit details card - development for now -->
 	<div id="habit-overlay" class="habit-overlay">
 		<div id="habit-card-1" class="habit-card">
@@ -41,10 +43,12 @@
 				<h2 id="habit-card-title">THIS IS A HABIT</h2>
 				<span style='margin-bottom: 10px;'>This is the description</span>
 				<div style='display: flex;margin-bottom: 10px;'>
-					Current streak: <span style='margin-left: auto; padding-right: 20px;'><strong>20 days</strong></span>
+					Current streak: <span style='margin-left: auto; padding-right: 20px;'><strong>20
+							days</strong></span>
 				</div>
 				<div style='display: flex;margin-bottom: 10px;'>
-					Tracking period: <span style='margin-left: auto; padding-right: 20px;'><strong>weekly</strong></span>
+					Tracking period: <span
+						style='margin-left: auto; padding-right: 20px;'><strong>weekly</strong></span>
 				</div>
 				<div class="habit-buttons-container">
 					<ul style='display: flex;padding: 0;justify-content: space-around; width:100%'>
@@ -58,7 +62,6 @@
 		<div id="dark-overlay-habit" class="dark-overlay"></div>
 	</div>
 
-
 	<div class="main-wrap">
 		<nav class="nav">
 			<h6 tabindex="0">ACCOUNT</h6>
@@ -69,7 +72,7 @@
 			<h1 style="margin: 0.1em 0 0.2em 0; ">MY HABITS</h1>
 			<h6 id="dateString" class="subheading">TODAY'S DATE</h6>
 		</div>
-		<div class="btn-wrap"  style="flex-direction: row;">
+		<div class="btn-wrap" style="flex-direction: row;">
 			<div id="addBtn" class="add-habit-button" tabindex="0">
 				<span>DARK MODE</span>
 			</div>
@@ -80,7 +83,7 @@
 				<span>SHOW POPUP</span>
 			</div>
 		</div>
-		
+
 		<!-- BUTTONS GO HERE -->
 		<div class="btn yellow" tabindex="0">
 			<div class="btn-info-container">
@@ -134,7 +137,7 @@
 		</div>
 		<div class="btn green" tabindex="0">
 			<div class="btn-info-container">
-				<span class="btn-title" >WATER PLANTS</span>
+				<span class="btn-title">WATER PLANTS</span>
 				<span class="btn-subtitle">1 OF 5 THIS WEEK</span>
 				<span class="bar-container">
 					<span id="bar6" class="bar-progress green"></span>
@@ -182,10 +185,11 @@
 			</div>
 			<span class="plus-sign">+</span>
 		</div>
-		
+
 		<!-- END OF BUTTONS -->
 	</div>
 </body>
 
 <script src="script.js"></script>
+
 </html>

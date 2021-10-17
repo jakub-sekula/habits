@@ -94,22 +94,22 @@ body {
 
 .popup-card input{
 	width: 100%;
-  border-radius: 5px;
-  padding: 10px;
-  box-sizing: border-box;
-  font-size: 1em;
-  border: 1px solid grey;
-  margin-bottom: 5px;
+	border-radius: 5px;
+	padding: 10px;
+	box-sizing: border-box;
+	font-size: 1em;
+	border: 1px solid grey;
+	margin-bottom: 5px;
 }
 
 .popup-card button{
 	width: 100%;
-  border-radius: 5px;
-  padding: 10px;
-  box-sizing: border-box;
-  font-size: 1em;
-  border: 1px solid grey;
-  margin-bottom: 5px;
+	border-radius: 5px;
+	padding: 10px;
+	box-sizing: border-box;
+	font-size: 1em;
+	border: 1px solid grey;
+	margin-bottom: 5px;
 }
 
 .popup-overlay {
@@ -156,17 +156,6 @@ body {
 	transform-origin: center center;
 	opacity: 0;
 }	
-
-/* .habit-card::before {
-	  position: absolute;
-    bottom: 0;
-    top: 0;
-    width: 200px;
-    background-color: red;
-    content: '';
-    right: 0;
-    opacity: 0.5;
-} */
 
 .habit-card-side {
 	padding: 10px;
@@ -268,7 +257,6 @@ body {
 }
 
 .btn {
-	/*z-index: 1;*/
 	display: flex;
 	justify-content: flex-start;
 	align-items: flex-start;
@@ -391,7 +379,6 @@ body {
 
 :root {
 	--nav-text-color: #fafafa;
-	/*--nav-text-color: #474747;*/
 
 	--yellow: #FFE34E;
 	--yellow-text: #BEA000;
