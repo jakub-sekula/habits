@@ -72,37 +72,37 @@ function hidePopup() {
 }
 
 function addListenersToAllBtns() {
-	//loop over all buttons on page, assign them unique IDs and attach their EventListeners
+	//loop over all buttons on page, assign them unique IDs and attach their EventListeners	
 
 	for (let i = 0; i < buttons.length; i++) {
+
 		let btn_id = guidGenerator();
 
 		buttonIDs[i] = btn_id;
 		buttons[i].setAttribute("id", btn_id);
 
-		buttons[i].childNodes[1].addEventListener("click", addListenersAfterFirstLoad);
-		buttons[i].childNodes[1].addEventListener("click", getClickedButtonInformation);
+		buttons[i].childNodes[1].addEventListener("click", function () {
+
+			//save button information
+			clickedButtonID = btn_id;
+			clickedButtonTitle = buttons[i].childNodes[1].childNodes[1].innerHTML;
+
+			//button class format is ".btn colour"
+			clickedButtonColour = buttons[i].getAttribute("class").split(" ")[1]; 
+			
+			console.log("The ID of the clicked button is: ", clickedButtonID, "\n",
+				'The colour of the clicked button is ', clickedButtonColour);
+
+			if (firstClick == 1) {
+				firstClick = 0;
+				window.addEventListener("resize", positionHabitCard);
+				document.addEventListener('DOMContentLoaded', positionHabitCard, false);
+			}
+		});
+
 		buttons[i].childNodes[1].addEventListener("click", showHabitCard);
-	}
 
-	function addListenersAfterFirstLoad() {
-		//only run if this is the first button click since page load
-		//this gets rid of errors where it cannot attach an event listener to null
-		if (firstClick == 1) {
-			firstClick = 0;
-			window.addEventListener("resize", positionHabitCard);
-			document.addEventListener('DOMContentLoaded', positionHabitCard, false);
-		}
 	}
-
-	function getClickedButtonInformation() {
-		clickedButtonID = btn_id;
-		clickedButtonColour = buttons[i].getAttribute("class").split(" ")[1]; //button class format is ".btn colour"
-		clickedButtonTitle = buttons[i].childNodes[1].childNodes[1].innerHTML;
-		console.log("The ID of the clicked button is: ", clickedButtonID, "\n",
-			'The colour of the clicked button is ', clickedButtonColour);
-	}
-
 }
 
 function positionHabitCard() {
