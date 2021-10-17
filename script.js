@@ -71,17 +71,17 @@ function addListenersToAllBtns() {
 		buttonIDs[i]=btn_id;
 		buttons[i].setAttribute("id",btn_id);
 
-		buttons[i].addEventListener("click",function(){if (firstClick==1){firstClick=0;window.addEventListener("resize", positionHabitCard)
+		buttons[i].childNodes[1].addEventListener("click",function(){if (firstClick==1){firstClick=0;window.addEventListener("resize", positionHabitCard)
 		document.addEventListener('DOMContentLoaded', positionHabitCard, false);}});
 
-		buttons[i].addEventListener("click",function(){
+		buttons[i].childNodes[1].addEventListener("click",function(){
 			clickedButtonID = btn_id; 
 			clickedButtonColour = buttons[i].getAttribute("class").split(" ")[1]; 
 			clickedButtonTitle = buttons[i].childNodes[1].childNodes[1].innerHTML;
 			console.log("The ID of the clicked button is: ", clickedButtonID, "\n",
 				'The colour of the clicked button is ', clickedButtonColour)
 			});
-		buttons[i].addEventListener("click",showHabitCard);
+		buttons[i].childNodes[1].addEventListener("click",showHabitCard);
 	}
 }
 

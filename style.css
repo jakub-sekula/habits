@@ -334,7 +334,7 @@ body {
 	transform: scale(1.05);
 }
 
-.btn:active {
+/* .btn:active {
 	z-index: 1;
 	filter: drop-shadow(0px 0px 5px #6e6e6e);
 	transform: scale(1.05);
@@ -344,7 +344,7 @@ body {
 	z-index: 1;
 	filter: drop-shadow(0px 0px 5px #6e6e6e);
 	transform: scale(1.025);
-}
+} */
 
 .btn-inside {
 	display: flex;
