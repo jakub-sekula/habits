@@ -27,9 +27,10 @@ body {
   	padding-left: 5% !important;
   }
   .btn {
-  	margin-top: 1% !important;
-  	margin-bottom: 1% !important;
-  	width: 100% !important;
+	margin-top: 1% !important;
+    margin-bottom: 1% !important;
+    width: 100% !important;
+    flex-basis: auto!important;;
   }
 
   .add-habit-button{
@@ -237,8 +238,12 @@ body {
 
 .main-wrap {
 	display: flex;
-	flex-flow: column wrap;
-	padding: 0 5%;
+    flex-flow: wrap;
+    padding: 0 5%;
+    margin: 0 auto;
+    width: 90%;
+	max-width: 700px;
+	justify-content: center;
 }
 
 .btn-wrap {
@@ -256,17 +261,15 @@ body {
 	justify-content: space-evenly;
 	width: 60px;
 	height: 100%;
-	grid-column: 3;
-	grid-row: 1 / span 3;
 	line-height: 10px;
 	background-color: rgba(255,255,255,0.1);
 	box-shadow: inset 5px 0px 8px -10px #000;
+	margin-left: auto;
 }
 
 .btn {
 	/*z-index: 1;*/
-	display: grid;
-	flex-flow: column;
+	display: flex;
 	justify-content: flex-start;
 	align-items: flex-start;
 	width: 300px;
@@ -283,20 +286,24 @@ body {
 	border: 1.5px solid;
 	user-select: none;
 	overflow: hidden;
-	grid-template-columns: repeat(auto-fit, minmax(75%, 1fr));
-	/*color: black !important;*/
+	box-sizing: border-box;
+	flex-basis: 49%;
+}
+
+.btn-info-container {
+	display: flex;
+    flex-direction: column;
+    height: 100%;
+    width: 100%;
 }
 
 .bar-container {
 	display: flex;
 	width: 100%;
-	height: 100%;
+	height: 10px;
 	background-color: white;
 	margin-top: auto;
-	/*border-radius: 0 0 15px 15px;*/
 	box-shadow: inset 0px 11px 8px -10px #bbb;
-	grid-column: 1 / span 2;
-	grid-row: 3;
 }
 
 .bar-progress {
@@ -313,16 +320,12 @@ body {
 	font-size: 20px;
 	line-height: 10px;
 	margin: 15px 0 0 15px;
-	grid-column: span 1 / 2;
-	grid-row: 1;
 }
 
 .btn-subtitle {
 	font-size: 10px;
 	margin: 10px 0 0 15px;
 	line-height: 10px;
-	grid-column: 1 / span 2;
-	grid-row: 2;
 }
 
 .btn:hover {
@@ -350,7 +353,7 @@ body {
 
 .heading {
 	margin-top: 3rem;
-	margin-bottom: 2rem;
+	margin-bottom: 1rem;
 	letter-spacing: 0.22em;
 	display: flex;
 	flex-flow: column;

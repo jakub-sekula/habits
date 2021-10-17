@@ -77,7 +77,7 @@ function addListenersToAllBtns() {
 		buttons[i].addEventListener("click",function(){
 			clickedButtonID = btn_id; 
 			clickedButtonColour = buttons[i].getAttribute("class").split(" ")[1]; 
-			clickedButtonTitle = buttons[i].childNodes[1].innerHTML;
+			clickedButtonTitle = buttons[i].childNodes[1].childNodes[1].innerHTML;
 			console.log("The ID of the clicked button is: ", clickedButtonID, "\n",
 				'The colour of the clicked button is ', clickedButtonColour)
 			});
