@@ -105,6 +105,7 @@ function addListenersToAllBtns() {
 	}
 }
 
+
 function positionHabitCard() {
 	var habit_button = document.getElementById(clickedButtonID);
 	var card = document.getElementById("habit-card-1");
