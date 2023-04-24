@@ -1,4 +1,5 @@
 import { PrismaClient, Log, Habit } from "@prisma/client";
+import { getRelativeTimeString } from "@utils";
 const prisma = new PrismaClient();
 
 /**
@@ -6,13 +7,12 @@ const prisma = new PrismaClient();
  * @param habit - The habit object for which the streak is to be calculated
  * @returns - An object containing the current streak count, longest streak count, streak status, and streak expiration timestamp
  */
-export async function calculateStreak(
-  habit: Habit
-): Promise<{
+export async function calculateStreak(habit: Habit): Promise<{
   currentStreak: number;
   longestStreak: number;
   streakActive: boolean;
-  streakExpires: null;
+  streakExpiresTimestamp: number | null;
+  streakExpires: string | null;
 }> {
   //get all logs for the habit
   const entries = await prisma.log.findMany({
@@ -33,6 +33,7 @@ export async function calculateStreak(
   let currentStreak = 0;
   let previousTime: number | null = null;
   let streakActive = false;
+  let streakExpiresTimestamp = null;
   let streakExpires = null;
 
   entries.forEach((entry: Log) => {
@@ -60,7 +61,8 @@ export async function calculateStreak(
         streakActive = true;
       }
 
-      streakExpires = currentTime + habit.streakInterval * 1000;
+      streakExpiresTimestamp = currentTime + habit.streakInterval * 1000;
+      streakExpires = getRelativeTimeString(streakExpiresTimestamp);
       previousTime = currentTime;
     }
   });
@@ -68,7 +70,15 @@ export async function calculateStreak(
   // Check if the current Streak is longer than the longest Streak
   longestStreak = Math.max(longestStreak, currentStreak);
 
-  return { currentStreak, longestStreak, streakActive, streakExpires };
+  if(!streakActive && currentStreak >= 2) currentStreak = 0
+
+  return {
+    currentStreak,
+    longestStreak,
+    streakActive,
+    streakExpires,
+    streakExpiresTimestamp,
+  };
 }
 
 /**
@@ -113,7 +123,6 @@ export function calculateStreakInterval(
   }
 
   const intervalSeconds = periodNumeric * frequency;
-  console.log({ frequency, period, periodNumeric, intervalSeconds });
 
   return intervalSeconds;
 }

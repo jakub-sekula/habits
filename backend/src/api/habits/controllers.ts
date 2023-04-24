@@ -54,7 +54,6 @@ async function getHabit(req: Request, res: Response) {
     if (habit.userId != req.user?.id) return res.sendStatus(401);
 
     const streak = await calculateStreak(habit);
-    console.log(streak);
 
     return res.status(200).json({ ...habit, ...streak });
   } catch (err) {
@@ -70,8 +69,6 @@ async function createHabit(req: Request, res: Response) {
   if (!user) return res.sendStatus(400);
 
   let { name, frequency, period, weekdays, reminder, image, color } = req.body;
-
-  console.log(weekdays);
 
   const streakInterval =
     !!frequency && !!period
@@ -144,8 +141,21 @@ async function logHabit(req: Request, res: Response) {
     const habit = await prisma.habit.findUnique({ where: { id: Number(id) } });
     if (!habit) return res.sendStatus(404);
 
+    // Find last non-duplicate log
+    const previousLog = await prisma.log.findFirst({
+      where: { habit: { id: habit.id }, event: "done" },
+      orderBy: { createdAt: "desc" },
+    });
+
+    const previousLogTime = previousLog?.createdAt;
+
+    const isDuplicated = previousLogTime
+      ? (new Date().getTime() - previousLog?.createdAt.getTime()) / 1000 <
+        habit.streakInterval * 0.9
+      : false;
+
     const logInput: Prisma.LogCreateInput = {
-      event: event,
+      event: !isDuplicated ? event : `${event} - duplicated`,
       habit: {
         connect: { id: habit.id },
       },
