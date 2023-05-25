@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.get("/me", getCurrentUserInfo);
 
-router.put("/:id", updateUser);
+router.patch("/:id", updateUser);
 
 export default router;

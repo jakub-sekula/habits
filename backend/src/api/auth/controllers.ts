@@ -1,4 +1,13 @@
 // import "dotenv/config.js";
+declare global {
+  namespace Express {
+    interface User {
+      username: string;
+      id: number;
+    }
+  }
+}
+
 import { Request, Response, NextFunction } from "express";
 import passport = require("passport");
 const LocalStrategy = require("passport-local");
@@ -7,28 +16,33 @@ import bcrypt = require("bcrypt");
 
 const prisma = new PrismaClient();
 
-async function verify(username: string, password: string, callback: Function) {
-  const user = (await prisma.user.findUnique({
-    where: {
-      username: username,
-    },
-  })) as User;
+async function verify(username: string, password: string, done: Function) {
+  try {
+    const user = (await prisma.user.findUnique({
+      where: {
+        username: username,
+      },
+    })) as User;
 
-  if (!user) {
-    console.log("User does not exist");
-    return callback(null, false, { message: "Incorrect username or password" });
+    if (!user) {
+      console.log("User does not exist");
+      return done(null, false, {
+        message: "Incorrect username or password",
+      });
+    }
+
+    const valid = await bcrypt.compare(password, user.password);
+
+    if (!valid) {
+      console.log("Incorrect credentials");
+      return done(null, false, {
+        message: "Incorrect username or password.",
+      });
+    }
+    return done(null, user, { message: "Logged in Successfully" });
+  } catch (err) {
+    return done(err);
   }
-
-  const valid = await bcrypt.compare(password, user.hashed_password);
-
-  if (!valid) {
-    console.log("Incorrect credentials");
-    return callback(null, false, {
-      message: "Incorrect username or password.",
-    });
-  }
-
-  return callback(null, user);
 }
 
 passport.use(new LocalStrategy(verify));
@@ -49,16 +63,6 @@ passport.use(new LocalStrategy(verify));
  * information is stored in the session.
  */
 
-
-declare global {
-	namespace Express {
-	  interface User {
-		username: string;
-		id: number;
-	  }
-	}
-  }
-
 passport.serializeUser(function (user, callback: Function) {
   callback(null, { id: user.id, username: user.username });
 });
@@ -67,18 +71,19 @@ passport.deserializeUser(function (user, callback: Function) {
   callback(null, user);
 });
 
-export async function loginUser(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  passport.authenticate("local", {
-    successReturnToOrRedirect: "/",
-    failureRedirect: "/login",
-    failureMessage: true,
-  })(req,res,next);
+const jwt = require("jsonwebtoken");
 
-}
+// export async function loginUser(
+//   req: Request,
+//   res: Response,
+//   next: NextFunction
+// ) {
+//   passport.authenticate("login", {
+//     successReturnToOrRedirect: "/",
+//     failureRedirect: "/login",
+//     failureMessage: true,
+//   })(req, res, next);
+// }
 
 export async function logoutUser(
   req: Request,
@@ -108,20 +113,25 @@ export async function registerUser(
 
   const userCreateInput: Prisma.UserCreateInput = {
     username: req.body.username,
-    salt: salt,
-    hashed_password: hashed_password,
+    password: hashed_password,
   };
 
   try {
-    const user = await prisma.user.create({
+    const { password, ...user } = await prisma.user.create({
       data: userCreateInput,
     });
 
-    req.login(user, function (err) {
-      if (err) {
-        return next(err);
-      }
-      return res.status(201).json(user);
+    req.login(user, { session: false }, async (error) => {
+      if (error) return next(error);
+
+      const body = {
+        id: user.id,
+        email: user.email,
+        username: user.username,
+      };
+      const access_token = jwt.sign({ user: body }, "TOP_SECRET");
+
+      return res.json({ user: body, access_token });
     });
   } catch (error) {
     console.log(error);
@@ -129,4 +139,54 @@ export async function registerUser(
   }
 }
 
+export async function loginUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  passport.authenticate("local", async (err: any, user: User, info: any) => {
+    try {
+      if (err || !user) {
+        const error = new Error("An error occurred.");
 
+        return res.json({"error": "error while signing in"});
+      }
+
+      req.login(user, { session: false }, async (error) => {
+        if (error) return next(error);
+
+        const body = {
+          id: user.id,
+          email: user.email,
+          username: user.username,
+        };
+        const access_token = jwt.sign({ user: body }, "TOP_SECRET");
+
+        return res.json({ user: body, access_token });
+      });
+    } catch (error) {
+      return next(error);
+    }
+  })(req, res, next);
+}
+
+const JWTstrategy = require('passport-jwt').Strategy;
+const ExtractJWT = require('passport-jwt').ExtractJwt;
+
+passport.use(
+  'jwt',
+  new JWTstrategy(
+    {
+      secretOrKey: 'TOP_SECRET',
+      jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
+      session: false
+    },
+    async (token: any, done: Function) => {
+      try {
+        return done(null, token.user);
+      } catch (error) {
+        done(error);
+      }
+    }
+  )
+);

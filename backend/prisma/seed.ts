@@ -24,7 +24,6 @@ async function main() {
         "$2b$10$aTiGWeioLMOidNUHWW/bRO7E6tV6q9774lsf9DG9WCcT5ulZZ/Y6i",
     },
   });
-  console.log({ alice, bob });
 }
 main()
   .then(async () => {

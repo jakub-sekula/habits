@@ -51,7 +51,7 @@ async function getHabit(req: Request, res: Response) {
     // get habit
     const habit = await prisma.habit.findUnique({ where: { id: Number(id) } });
     if (!habit) return res.sendStatus(404);
-    if (habit.userId != req.user?.id) return res.sendStatus(401);
+    if (habit.userId != req.user?.id) return res.sendStatus(403);
 
     const streak = await calculateStreak(habit);
 
