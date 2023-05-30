@@ -1,4 +1,9 @@
-// import "dotenv/config.js";
+import "dotenv/config.js";
+import { Request, Response, NextFunction } from "express";
+import passport = require("passport");
+import { PrismaClient, Prisma, User, Account } from "@prisma/client";
+import bcrypt = require("bcrypt");
+
 declare global {
   namespace Express {
     interface User {
@@ -8,15 +13,182 @@ declare global {
   }
 }
 
-import { Request, Response, NextFunction } from "express";
-import passport = require("passport");
-const LocalStrategy = require("passport-local");
-import { PrismaClient, Prisma, User } from "@prisma/client";
-import bcrypt = require("bcrypt");
-
 const prisma = new PrismaClient();
 
-async function verify(username: string, password: string, done: Function) {
+// Google login functions
+
+const GoogleStrategy = require("passport-google-oauth20").Strategy;
+
+async function verifyGoogle(
+  accessToken: string,
+  refreshToken: string,
+  profile: any,
+  done: Function
+) {
+  try {
+    const user = (await prisma.user.findUnique({
+      where: {
+        email: profile._json.email,
+      },
+    })) as User;
+
+    if (!user) {
+      console.log("User does not exist");
+      return done(null, false, {
+        message: "Incorrect username or password",
+      });
+    }
+
+    return done(null, user, { message: "Logged in Successfully" });
+  } catch (err) {
+    return done(err);
+  }
+}
+
+passport.use(
+  new GoogleStrategy(
+    {
+      clientID: process.env.GOOGLE_CLIENT_ID,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/auth/google/callback",
+    },
+    verifyGoogle
+  )
+);
+
+export async function loginGoogle(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.log("logging in innit");
+  passport.authenticate("google", {
+    session: false,
+    scope: ["profile", "email"],
+  })(req, res, next);
+}
+
+export async function loginGoogleCallback(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  passport.authenticate(
+    "google",
+    {
+      session: false,
+      failureRedirect: "/login",
+    },
+    async (err: any, user: User, info: any) => {
+      console.log("google user", user);
+      try {
+        if (err) {
+          return res.json({ error: "error while signing in" });
+        }
+
+        if (!user) {
+          const user = await prisma.user.create({
+            data: {
+              username: "sranńsko",
+              password: "gówno",
+            },
+          });
+          req.login(user, { session: false }, async (error) => {
+            if (error) return next(error);
+  
+            const body = {
+              id: user.id,
+              email: user.email,
+              username: user.username,
+            };
+            const access_token = jwt.sign({ user: body }, process.env.JWT_SECRET);
+  
+            return res.json({ user: body, access_token });
+          });
+        } else {
+
+          req.login(user, { session: false }, async (error) => {
+            if (error) return next(error);
+  
+            const body = {
+              id: user.id,
+              email: user.email,
+              username: user.username,
+            };
+            const access_token = jwt.sign({ user: body }, process.env.JWT_SECRET);
+  
+            return res.json({ user: body, access_token });
+          });
+        }
+
+      } catch (error) {
+        console.log(error);
+        return next(error);
+      }
+    }
+  )(req, res, next);
+}
+
+// Github login functions
+
+let GithubStrategy = require("passport-github2");
+
+async function verifyGithub(
+  accessToken: string,
+  refreshToken: string,
+  profile: any,
+  done: Function
+) {
+  console.log({ accessToken, refreshToken });
+  return done(null, profile._json);
+}
+
+passport.use(
+  new GithubStrategy(
+    {
+      clientID: process.env.GITHUB_CLIENT_ID,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET,
+      callbackURL: "http://localhost:3000/auth/github/callback",
+    },
+    verifyGithub
+  )
+);
+
+export async function loginGithub(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.log("logging in innit");
+  passport.authenticate("github", { session: false, scope: ["user:email"] })(
+    req,
+    res
+  );
+}
+
+export async function loginGithubCallback(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  console.log("what do we have here");
+
+  passport.authenticate("github", {
+    session: false,
+    failureRedirect: "/login",
+  })(req, res, next),
+    function (req: Request, res: Response) {
+      // Successful authentication, redirect home.
+      console.log("sranie");
+      next();
+    };
+}
+
+// Local registration and login functions
+
+const LocalStrategy = require("passport-local");
+
+async function verifyLocal(username: string, password: string, done: Function) {
   try {
     const user = (await prisma.user.findUnique({
       where: {
@@ -45,58 +217,11 @@ async function verify(username: string, password: string, done: Function) {
   }
 }
 
-passport.use(new LocalStrategy(verify));
-
-/* Configure session management.
- *
- * When a login session is established, information about the user will be
- * stored in the session.  This information is supplied by the `serializeUser`
- * function, which is yielding the user ID and username.
- *
- * As the user interacts with the app, subsequent requests will be authenticated
- * by verifying the session.  The same user information that was serialized at
- * session establishment will be restored when the session is authenticated by
- * the `deserializeUser` function.
- *
- * Since every request to the app needs the user ID and username, in order to
- * fetch todo records and render the user element in the navigation bar, that
- * information is stored in the session.
- */
-
-passport.serializeUser(function (user, callback: Function) {
-  callback(null, { id: user.id, username: user.username });
-});
-
-passport.deserializeUser(function (user, callback: Function) {
-  callback(null, user);
-});
-
-const jwt = require("jsonwebtoken");
-
-// export async function loginUser(
-//   req: Request,
-//   res: Response,
-//   next: NextFunction
-// ) {
-//   passport.authenticate("login", {
-//     successReturnToOrRedirect: "/",
-//     failureRedirect: "/login",
-//     failureMessage: true,
-//   })(req, res, next);
-// }
-
-export async function logoutUser(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/");
-  });
-}
+passport.use(
+  new LocalStrategy(verifyLocal, {
+    session: false,
+  })
+);
 
 export async function registerUser(
   req: Request,
@@ -129,7 +254,7 @@ export async function registerUser(
         email: user.email,
         username: user.username,
       };
-      const access_token = jwt.sign({ user: body }, "TOP_SECRET");
+      const access_token = jwt.sign({ user: body }, process.env.JWT_SECRET);
 
       return res.json({ user: body, access_token });
     });
@@ -149,7 +274,7 @@ export async function loginUser(
       if (err || !user) {
         const error = new Error("An error occurred.");
 
-        return res.json({"error": "error while signing in"});
+        return res.json({ error: "error while signing in" });
       }
 
       req.login(user, { session: false }, async (error) => {
@@ -160,7 +285,7 @@ export async function loginUser(
           email: user.email,
           username: user.username,
         };
-        const access_token = jwt.sign({ user: body }, "TOP_SECRET");
+        const access_token = jwt.sign({ user: body }, process.env.JWT_SECRET);
 
         return res.json({ user: body, access_token });
       });
@@ -170,20 +295,40 @@ export async function loginUser(
   })(req, res, next);
 }
 
-const JWTstrategy = require('passport-jwt').Strategy;
-const ExtractJWT = require('passport-jwt').ExtractJwt;
+export async function logoutUser(
+  req: Request,
+  res: Response,
+  next: NextFunction
+) {
+  req.logout(function (err) {
+    if (err) {
+      return next(err);
+    }
+    res.redirect("/");
+  });
+}
+
+// Configure JWT strategy
+
+const jwt = require("jsonwebtoken");
+const JWTstrategy = require("passport-jwt").Strategy;
+const ExtractJWT = require("passport-jwt").ExtractJwt;
 
 passport.use(
-  'jwt',
+  "jwt",
   new JWTstrategy(
     {
-      secretOrKey: 'TOP_SECRET',
+      secretOrKey: process.env.JWT_SECRET,
       jwtFromRequest: ExtractJWT.fromAuthHeaderAsBearerToken(),
-      session: false
+      session: false,
     },
     async (token: any, done: Function) => {
       try {
-        return done(null, token.user);
+        if (token.user) {
+          return done(null, token.user);
+        } else {
+          return done(null, false);
+        }
       } catch (error) {
         done(error);
       }

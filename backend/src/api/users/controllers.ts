@@ -18,7 +18,7 @@ export async function updateUser(req: Request, res: Response) {
   const { email, image } = req.body;
 
   try {
-    const user = (await prisma.user.update({
+    const {password, createdAt, ...user} = (await prisma.user.update({
       where: {
         id: Number(id),
       },

@@ -46,6 +46,7 @@ async function getAllHabits(req: Request, res: Response) {
  * @returns {Promise<void>} - A Promise that resolves to a JSON response with habit data and calculated streak information, or an error status.
  */
 async function getHabit(req: Request, res: Response) {
+  if (!req.user) return res.status(401).send();
   const { id } = req.params;
   try {
     // get habit
@@ -62,6 +63,7 @@ async function getHabit(req: Request, res: Response) {
 }
 
 async function createHabit(req: Request, res: Response) {
+  if (!req.user) return res.status(401).send();
   const user = await prisma.user.findUnique({
     where: { username: req.user?.username },
   });
@@ -98,6 +100,7 @@ async function createHabit(req: Request, res: Response) {
 }
 
 async function updateHabit(req: Request, res: Response) {
+  if (!req.user) return res.status(401).send();
   const { id } = req.params;
   const { name, frequency, period, weekdays, reminder } = req.body;
 
@@ -117,11 +120,13 @@ async function updateHabit(req: Request, res: Response) {
     if (!data) return res.sendStatus(404);
     return res.status(200).json(data);
   } catch (err) {
+    console.log(err)
     return res.status(500).send("Error while updating habit!");
   }
 }
 
 async function deleteHabit(req: Request, res: Response) {
+  if (!req.user) return res.status(401).send();
   const { id } = req.params;
   try {
     const data = await prisma.habit.delete({ where: { id: Number(id) } });
@@ -133,6 +138,7 @@ async function deleteHabit(req: Request, res: Response) {
 }
 
 async function logHabit(req: Request, res: Response) {
+  if (!req.user) return res.status(401).send();
   const { id } = req.params;
 
   const { event } = req.body;
