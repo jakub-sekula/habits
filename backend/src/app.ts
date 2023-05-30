@@ -1,11 +1,11 @@
-import express, { json, Request, Response, NextFunction } from "express";
-import passport = require("passport");
+import express, { json } from "express";
+import { VerifyToken } from "@/middlewares/verifyFirebaseToken";
+
 import cors from "cors";
 
 import authRouter from "./api/auth/routes";
 import usersRouter from "./api/users/routes";
 import habitsRouter from "./api/habits/routes";
-import { User } from "@prisma/client";
 
 const app = express();
 
@@ -17,30 +17,19 @@ app.use(
   })
 );
 
+app.use("/auth", VerifyToken, authRouter);
+app.use("/users", VerifyToken, usersRouter);
+app.use("/habits", VerifyToken, habitsRouter);
 
-app.get("/", (req, res) => {
+app.get("/", VerifyToken, async (req, res) => {
   res.json({
-    message: "Welcome to the homepage",
-    user: req?.user,
+    token: req.headers?.authorization,
+    user: req.user,
   });
 });
-
-app.use("/auth", authRouter);
-app.use("/users", ensureAuthenticated, usersRouter);
-app.use("/habits", ensureAuthenticated, habitsRouter);
 
 app.use((req, res, next) => {
   res.status(404).send();
 });
 
 export default app;
-
-function ensureAuthenticated(req: Request, res: Response, next: NextFunction) {
-  passport.authenticate("jwt", { session: false }, (err: any, user: User) => {
-    if (err) {
-      return next(err);
-    }
-    req.user = user; // Set req.user with the authenticated user or null
-    next();
-  })(req, res, next);
-}

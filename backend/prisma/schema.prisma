@@ -7,35 +7,14 @@ generator client {
     provider = "prisma-client-js"
 }
 
-model Account {
-  id                 String  @id @default(cuid())
-  userId             Int
-  type               String
-  provider           String
-  providerAccountId  String
-  refresh_token      String?  
-  access_token       String?  
-  expires_at         Int?
-  token_type         String?
-  scope              String?
-  id_token           String?  
-  session_state      String?
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  @@unique([provider, providerAccountId])
-}
-
 model User {
-    id              Int       @id @default(autoincrement())
-    username        String    @unique
-    email           String?   @unique
-    image           String?
-    password String
-    createdAt       DateTime  @default(now())
-    habits          Habit[]
-    trackers        Tracker[]
-    accounts      Account[]
+    uid       String    @id @default(cuid())
+    username  String?   @unique
+    email     String?   @unique
+    image     String?
+    createdAt DateTime  @default(now())
+    habits    Habit[]
+    trackers  Tracker[]
 }
 
 model Session {
@@ -58,8 +37,8 @@ model Habit {
     createdAt      DateTime @default(now())
 
     // Relations
-    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId Int
+    user   User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
+    userId String
 
     streaks Streak[]
     logs    Log[]
@@ -73,8 +52,8 @@ model Tracker {
     reminder DateTime
 
     // Relations
-    user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
-    userId Int
+    user   User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
+    userId String
 
     logs Log[]
 }

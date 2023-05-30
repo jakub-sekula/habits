@@ -2,15 +2,6 @@ import { Request, Response } from "express";
 import { PrismaClient, Prisma, Log, Habit } from "@prisma/client";
 import { calculateStreak, calculateStreakInterval } from "./streaks";
 
-declare global {
-  namespace Express {
-    interface User {
-      username: string;
-      id: number;
-    }
-  }
-}
-
 const prisma = new PrismaClient();
 
 /**
@@ -27,7 +18,7 @@ async function getAllHabits(req: Request, res: Response) {
 
   try {
     const habits = await prisma.habit.findMany({
-      where: { user: { id: req.user.id } },
+      where: { user: { uid: req.user.uid } },
     });
     if (!habits) return res.sendStatus(404);
     return res.status(200).json(habits);
@@ -52,7 +43,7 @@ async function getHabit(req: Request, res: Response) {
     // get habit
     const habit = await prisma.habit.findUnique({ where: { id: Number(id) } });
     if (!habit) return res.sendStatus(404);
-    if (habit.userId != req.user?.id) return res.sendStatus(403);
+    if (habit.userId != req.user?.uid) return res.sendStatus(403);
 
     const streak = await calculateStreak(habit);
 
@@ -65,7 +56,7 @@ async function getHabit(req: Request, res: Response) {
 async function createHabit(req: Request, res: Response) {
   if (!req.user) return res.status(401).send();
   const user = await prisma.user.findUnique({
-    where: { username: req.user?.username },
+    where: { uid: req.user.uid },
   });
 
   if (!user) return res.sendStatus(400);
@@ -87,7 +78,7 @@ async function createHabit(req: Request, res: Response) {
     streakInterval,
     frequency,
     user: {
-      connect: { id: user.id },
+      connect: { uid: user.uid },
     },
   };
 
@@ -120,7 +111,7 @@ async function updateHabit(req: Request, res: Response) {
     if (!data) return res.sendStatus(404);
     return res.status(200).json(data);
   } catch (err) {
-    console.log(err)
+    console.log(err);
     return res.status(500).send("Error while updating habit!");
   }
 }
@@ -139,8 +130,8 @@ async function deleteHabit(req: Request, res: Response) {
 
 async function logHabit(req: Request, res: Response) {
   if (!req.user) return res.status(401).send();
-  const { id } = req.params;
 
+  const { id } = req.params;
   const { event } = req.body;
 
   try {
@@ -175,6 +166,20 @@ async function logHabit(req: Request, res: Response) {
   }
 }
 
+async function getHabitLogs(req: Request, res: Response) {
+  if (!req.user) return res.status(401).send();
+
+  const { id } = req.params;
+
+  try {
+    const logs = await prisma.log.findMany({ where: { habitId: Number(id) } });
+    if (!logs.length) return res.sendStatus(404);
+    return res.status(200).json(logs);
+  } catch (err) {
+    return res.status(500).send(`Error getting logs`);
+  }
+}
+
 export {
   getAllHabits,
   getHabit,
@@ -182,4 +187,5 @@ export {
   updateHabit,
   deleteHabit,
   logHabit,
+  getHabitLogs,
 };

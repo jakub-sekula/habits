@@ -1,0 +1,1 @@
+export const kek = 1;

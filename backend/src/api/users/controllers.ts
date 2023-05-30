@@ -9,18 +9,14 @@ export async function getCurrentUserInfo(req: Request, res: Response) {
 }
 
 export async function updateUser(req: Request, res: Response) {
-  if (!isNumeric(req.params.id)) return res.sendStatus(400);
-
-  const id = Number(req.params.id);
-
-  if (req.user?.id != id) return res.sendStatus(401);
+  if (req.user?.uid != req.params.uid) return res.sendStatus(401);
 
   const { email, image } = req.body;
 
   try {
-    const {password, createdAt, ...user} = (await prisma.user.update({
+    const user = (await prisma.user.update({
       where: {
-        id: Number(id),
+        uid: req.user.uid,
       },
       data: {
         email,

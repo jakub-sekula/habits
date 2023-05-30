@@ -1,12 +1,12 @@
-import express = require("express");
-
+import * as express from "express"
 import {
   getAllHabits,
   getHabit,
   createHabit,
   updateHabit,
   deleteHabit,
-  logHabit
+  logHabit,
+  getHabitLogs
 } from "./controllers";
 
 const router = express.Router();
@@ -24,7 +24,10 @@ router.post("/", createHabit);
 router.put("/:id", updateHabit);
 
 // Log habit
-router.post("/:id/log", logHabit)
+router.post("/:id/logs", logHabit)
+
+// Get all logs for given habit
+router.get("/:id/logs", getHabitLogs)
 
 // Delete a habit
 router.delete("/:id", deleteHabit);

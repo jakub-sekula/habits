@@ -1,4 +1,4 @@
-import express = require("express");
+import express from "express";
 import { getCurrentUserInfo, updateUser } from "./controllers";
 
 const router = express.Router();
