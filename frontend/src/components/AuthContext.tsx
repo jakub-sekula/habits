@@ -1,9 +1,12 @@
+'use client'
 import { createContext, useContext, useState, useEffect } from "react";
 import {
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   User as FirebaseUser,
   UserCredential,
+  GoogleAuthProvider,
+  signInWithPopup
 } from "firebase/auth";
 
 import auth from "@/lib/auth";
@@ -13,6 +16,7 @@ export interface AuthContextType {
   login: (email: string, password: string) => Promise<UserCredential>;
   register: (email: string, password: string) => Promise<UserCredential>;
   logout: () => void;
+  loginWithGoogle: () => void;
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -45,11 +49,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return auth.signOut();
   }
 
+  function loginWithGoogle() {
+    return signInWithPopup(auth, new GoogleAuthProvider())
+  }
+
   const value: AuthContextType = {
     currentUser,
     login,
     register,
     logout,
+    loginWithGoogle
   };
 
   return (

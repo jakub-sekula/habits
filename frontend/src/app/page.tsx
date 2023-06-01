@@ -8,8 +8,8 @@ export default function Home() {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const user = currentUser;
-        const token = user && (await user.getIdToken());
+        const token = currentUser && (await currentUser.getIdToken());
+        if (!token) return
         const res = await fetch("http://localhost:3000/", {
           headers: new Headers({
             Authorization: `Bearer ${token}`,
