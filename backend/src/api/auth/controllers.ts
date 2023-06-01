@@ -41,7 +41,7 @@ export async function registerUser(
     res.json({ message: "User created successfully", user: user });
   } catch (error) {
     console.log(error);
-    res.status(500).send("Error creating user");
+    res.status(500).json({error:"Error creating user"});
   }
 }
 
