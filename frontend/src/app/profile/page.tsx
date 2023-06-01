@@ -9,7 +9,7 @@ export default function Home() {
     const fetchData = async () => {
       try {
         const token = currentUser && (await currentUser.getIdToken());
-        if (!token) return
+        if (!token) return;
         const res = await fetch("http://localhost:3000/", {
           headers: new Headers({
             Authorization: `Bearer ${token}`,
@@ -25,8 +25,9 @@ export default function Home() {
   }, [currentUser]);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-between p-24">
-      Main page
-    </main>
+    <>
+      Profile
+      <pre className="max-w-3xl w-full break-words whitespace-break-spaces">{JSON.stringify(currentUser, null, 2)}</pre>
+    </>
   );
 }

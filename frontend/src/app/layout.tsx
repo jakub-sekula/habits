@@ -12,7 +12,9 @@ export default function RootLayout({
     <html lang="en">
       <body>
         <AuthProvider>
-          <Header />{children}</AuthProvider>
+          <Header />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

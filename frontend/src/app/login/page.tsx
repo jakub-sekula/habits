@@ -3,6 +3,8 @@ import Link from "next/link";
 import styles from "./page.module.css";
 import clsx from "clsx";
 
+import { synchronizeWithBackend } from "@/lib/utils";
+
 import { useAuth, AuthContextType } from "@/components/AuthContext";
 import { useState, useRef, useEffect } from "react";
 import auth from "@/lib/auth";
@@ -17,14 +19,12 @@ import {
   GoogleAuthProvider,
   GithubAuthProvider,
   signInWithPopup,
-  linkWithPopup,
-  User,
   signInAnonymously,
-  Auth,
 } from "firebase/auth";
-import { useRouter } from "next/navigation";
 
+import { useRouter } from "next/navigation";
 export default function Page() {
+  const router = useRouter();
   const { currentUser, login, logout } = useAuth() as AuthContextType;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
@@ -32,7 +32,8 @@ export default function Page() {
   const timerRef = useRef(0);
 
   useEffect(() => {
-    return () => clearTimeout(timerRef.current);
+    const ref = timerRef.current;
+    return () => clearTimeout(ref);
   }, []);
 
   const [email, setEmail] = useState("");
@@ -43,7 +44,8 @@ export default function Page() {
     try {
       setLoading(true);
       await login(email, password);
-      synchronizeWithBackend(auth)
+      synchronizeWithBackend(auth);
+      router.push("/profile");
     } catch (e) {
       console.log(e);
       setError(e);
@@ -131,12 +133,13 @@ export default function Page() {
                 onClick={async () => {
                   await signInAnonymously(auth);
                   synchronizeWithBackend(auth);
-
+                  router.push("/profile");
                 }}
                 className={styles.button}
               >
                 Log in as guest
               </button>
+             
             </Tabs.Content>
             <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
               <button
@@ -158,7 +161,6 @@ export default function Page() {
                 <BsGithub size={24} /> Sign in with Github
               </button>
               <button
-                tabIndex={0}
                 onClick={async () => {
                   await signInWithPopup(auth, new GoogleAuthProvider());
                   synchronizeWithBackend(auth);
@@ -201,14 +203,3 @@ export default function Page() {
   );
 }
 
-async function synchronizeWithBackend(auth: Auth) {
-  const token = await auth.currentUser?.getIdToken();
-  const res = await fetch("http://localhost:3000/auth/login", {
-    method: "POST",
-    headers: new Headers({
-      Authorization: `Bearer ${token}`,
-    }),
-  });
-  const json = await res.json();
-  console.log("response from express: ", json);
-}

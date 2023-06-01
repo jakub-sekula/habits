@@ -1,131 +1,213 @@
 "use client";
 import Link from "next/link";
-import { sendEmailVerification } from "firebase/auth";
-import auth from "@/lib/auth";
+import styles from "./page.module.css";
+import clsx from "clsx";
 
 import { useAuth, AuthContextType } from "@/components/AuthContext";
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
+import auth from "@/lib/auth";
+
+import * as Form from "@radix-ui/react-form";
+import * as Tabs from "@radix-ui/react-tabs";
+import * as Toast from "@radix-ui/react-toast";
+
+import { BsGoogle, BsGithub, BsFacebook } from "react-icons/bs";
+
+import {
+  GoogleAuthProvider,
+  GithubAuthProvider,
+  signInWithPopup,
+  linkWithPopup,
+  User,
+  signInAnonymously,
+  Auth,
+} from "firebase/auth";
+
 export default function Page() {
-  const { currentUser, logout, register } = useAuth() as AuthContextType;
+  const { currentUser, login, logout } = useAuth() as AuthContextType;
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<any>(null);
+  const [open, setOpen] = useState(false);
+  const timerRef = useRef(0);
+
+  useEffect(() => {
+    return () => clearTimeout(timerRef.current);
+  }, []);
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
 
   async function handleFormSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (password !== confirmPassword) {
-      return alert("Passwords do not match");
-    }
-
     try {
       setLoading(true);
-      await register(email, password);
-
-      const token = await auth.currentUser?.getIdToken();
-      const res = await fetch("http://localhost:3000/auth/register", {
-        method: "POST",
-        headers: new Headers({
-          Authorization: `Bearer ${token}`,
-        }),
-      });
-      const json = await res.json()
-      console.log("response from express: ", json);
+      await login(email, password);
+      synchronizeWithBackend(auth)
     } catch (e) {
       console.log(e);
-      alert("Failed to register");
+      setError(e);
+      setOpen(true);
     }
 
     setLoading(false);
   }
+
   return (
-    <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full space-y-8">
-        <div>
-          <h2 className="mt-4 text-3xl text-center tracking-tight font-light dark:text-white">
-            Register your account
+    <>
+      <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+        <div className="max-w-md w-full space-y-8">
+          <h2 className="mt-4 text-3xl text-center tracking-tight font-light :">
+            Register a new account
           </h2>
-        </div>
-        <form onSubmit={handleFormSubmit} className="mt-8 space-y-6">
-          <div className="rounded-md shadow-sm -space-y-px">
-            <div>
-              <input
-                id="email-address"
-                name="email"
-                type="email"
-                autoComplete="email"
-                required
-                onChange={(e) => setEmail(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 placeholder-gray-500 rounded-t-md bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Email address"
-              />
-            </div>
-            <div>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                autoComplete="current-password"
-                required
-                onChange={(e) => setPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 placeholder-gray-500 rounded-t-md bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Password"
-              />
-            </div>
-            <div>
-              <input
-                id="confirmPassword"
-                name="confirmPassword"
-                type="password"
-                autoComplete="current-password"
-                required
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                className="appearance-none rounded-none relative block w-full px-3 py-2 placeholder-gray-500 rounded-t-md bg-gray-50 border border-gray-300 text-gray-900 text-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 focus:z-10 sm:text-sm"
-                placeholder="Confirm password"
-              />
-            </div>
-          </div>
-          <div>
-            <button
-              type="submit"
-              className=" w-full flex justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-800 hover:bg-sky-900"
+
+          <Tabs.Root className={styles.loginBox} defaultValue="passwordSignIn">
+            <Tabs.List className={styles.tabBar}>
+              <Tabs.Trigger className={styles.tab} value="passwordSignIn">
+                Register with email
+              </Tabs.Trigger>
+              <Tabs.Trigger className={styles.tab} value="socialSignIn">
+                Register with social
+              </Tabs.Trigger>
+            </Tabs.List>
+
+            <Tabs.Content
+              value="passwordSignIn"
+              className={styles.tabContainer}
             >
-              Register
-            </button>
-          </div>
-          <div className="flex items-center justify-between">
-            <div className="text-sm">
-              <Link
-                href="/login"
-                className="text-blue-600 hover:underline dark:text-blue-500"
-              >
-                Already have an account? Login
-              </Link>
-            </div>
-          </div>
-        </form>
-        <div>
-          {currentUser ? (
-            <div>
-              hello,{" "}
+              {error ? <pre>{JSON.stringify(error, null, 2)}</pre> : null}
+              <Form.Root onSubmit={handleFormSubmit}>
+                <Form.Field className="relative" name="email">
+                  <div className="flex items-baseline justify-between">
+                    <Form.Label className={clsx(styles.formlabel)}>
+                      Email
+                    </Form.Label>
+                    <Form.Message className={styles.error} match="valueMissing">
+                      Please enter your email
+                    </Form.Message>
+                    <Form.Message className={styles.error} match="typeMismatch">
+                      Please provide a valid email
+                    </Form.Message>
+                  </div>
+                  <Form.Control asChild>
+                    <input
+                      className={styles.formField}
+                      type="email"
+                      required
+                      name="email"
+                      autoComplete="email"
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </Form.Control>
+                </Form.Field>
+                <Form.Field className="grid mb-[10px]" name="question">
+                  <div className="flex items-baseline justify-between">
+                    <Form.Label className={clsx(styles.formlabel)}>
+                      Password
+                    </Form.Label>
+                    <Form.Message className={styles.error} match="valueMissing">
+                      Please enter a password
+                    </Form.Message>
+                  </div>
+                  <Form.Control asChild>
+                    <input
+                      id="password"
+                      name="password"
+                      type="password"
+                      autoComplete="current-password"
+                      required
+                      onChange={(e) => setPassword(e.target.value)}
+                      className={styles.formField}
+                    />
+                  </Form.Control>
+                </Form.Field>
+                <Form.Submit asChild>
+                  <button type="submit" className={styles.button}>
+                    Log in
+                  </button>
+                </Form.Submit>
+              </Form.Root>
               <button
-                onClick={() => {
-                  logout();
+                onClick={async () => {
+                  await signInAnonymously(auth);
+                  synchronizeWithBackend(auth);
+
                 }}
+                className={styles.button}
               >
-                logout {currentUser.email}
+                Log in as guest
+              </button>
+            </Tabs.Content>
+            <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
+              <button
+                onClick={async () => {
+                  await signInWithPopup(auth, new GoogleAuthProvider());
+                  synchronizeWithBackend(auth);
+                }}
+                className={styles.button}
+              >
+                <BsGoogle size={24} /> Sign in with Google
               </button>
               <button
-                onClick={() => {
-                  sendEmailVerification(currentUser);
+                onClick={async () => {
+                  await signInWithPopup(auth, new GithubAuthProvider());
+                  synchronizeWithBackend(auth);
                 }}
+                className={styles.button}
               >
-                send link mate
+                <BsGithub size={24} /> Sign in with Github
               </button>
-            </div>
-          ) : null}
+              <button
+                tabIndex={0}
+                onClick={async () => {
+                  await signInWithPopup(auth, new GoogleAuthProvider());
+                  synchronizeWithBackend(auth);
+                }}
+                className={styles.button}
+              >
+                <BsFacebook size={24} /> Sign in with Facebook
+              </button>
+            </Tabs.Content>
+          </Tabs.Root>
         </div>
       </div>
-    </div>
+      {!!error ? (
+        <Toast.Provider swipeDirection="right">
+          <Toast.Root
+            className="bg-red-100 rounded-md shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] p-[15px] grid [grid-template-areas:_'title_action'_'description_action'] grid-cols-[auto_max-content] gap-x-[15px] items-center data-[state=open]:animate-slideIn data-[state=closed]:animate-hide data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[swipe=cancel]:translate-x-0 data-[swipe=cancel]:transition-[transform_200ms_ease-out] data-[swipe=end]:animate-swipeOut"
+            open={open}
+            onOpenChange={setOpen}
+          >
+            <Toast.Title className="[grid-area:_title] mb-[5px] font-medium text-slate12 text-[15px]">
+              {error.name}
+            </Toast.Title>
+            <Toast.Description asChild>
+              <p>{error.code}</p>
+            </Toast.Description>
+            <Toast.Action
+              className="[grid-area:_action]"
+              asChild
+              altText="Goto schedule to undo"
+            >
+              <button className="inline-flex items-center justify-center rounded font-medium text-xs px-[10px] leading-[25px] h-[25px] bg-green2 text-green11 shadow-[inset_0_0_0_1px] shadow-green7 hover:shadow-[inset_0_0_0_1px] hover:shadow-red-500 focus:shadow-[0_0_0_2px] focus:shadow-green8">
+                Dismiss
+              </button>
+            </Toast.Action>
+          </Toast.Root>
+          <Toast.Viewport className="[--viewport-padding:_25px] fixed bottom-0 right-0 flex flex-col p-[var(--viewport-padding)] gap-[10px] w-[390px] max-w-[100vw] m-0 list-none z-[2147483647] outline-none" />
+        </Toast.Provider>
+      ) : null}
+    </>
   );
+}
+
+async function synchronizeWithBackend(auth: Auth) {
+  const token = await auth.currentUser?.getIdToken();
+  const res = await fetch("http://localhost:3000/auth/login", {
+    method: "POST",
+    headers: new Headers({
+      Authorization: `Bearer ${token}`,
+    }),
+  });
+  const json = await res.json();
+  console.log("response from express: ", json);
 }
