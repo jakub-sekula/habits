@@ -1,6 +1,5 @@
 import { Request, Response } from "express";
 import { PrismaClient, User } from "@prisma/client";
-import { isNumeric } from "@utils";
 const prisma = new PrismaClient();
 
 export async function getCurrentUserInfo(req: Request, res: Response) {

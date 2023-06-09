@@ -2,6 +2,10 @@ import { Request, Response } from "express";
 import { PrismaClient, Prisma, Log, Habit } from "@prisma/client";
 import { calculateStreak, calculateStreakInterval } from "./streaks";
 
+interface ExtendedHabit extends Habit {
+  streak?: number;
+}
+
 const prisma = new PrismaClient();
 
 /**
@@ -16,12 +20,22 @@ const prisma = new PrismaClient();
 async function getAllHabits(req: Request, res: Response) {
   if (!req.user) return res.sendStatus(401);
 
+  // await new Promise((resolve) => setTimeout(resolve, 2000));
+
   try {
     const habits = await prisma.habit.findMany({
       where: { user: { uid: req.user.uid } },
     });
     if (!habits) return res.sendStatus(404);
-    return res.status(200).json(habits);
+
+    const habitsWithStreaks = await Promise.all(
+      habits.map(async (habit) => {
+        const streak = await calculateStreak(habit);
+        return { ...habit, ...streak };
+      })
+    );
+
+    return res.status(200).json(habitsWithStreaks);
   } catch (err) {
     return res.status(500).send(`Error getting habit`);
   }
@@ -41,7 +55,7 @@ async function getHabit(req: Request, res: Response) {
   const { id } = req.params;
   try {
     // get habit
-    const habit = await prisma.habit.findUnique({ where: { id: Number(id) } });
+    const habit = await prisma.habit.findUnique({ where: { id: id } });
     if (!habit) return res.sendStatus(404);
     if (habit.userId != req.user?.uid) return res.sendStatus(403);
 
@@ -71,12 +85,12 @@ async function createHabit(req: Request, res: Response) {
   const habitInput: Prisma.HabitCreateInput = {
     name,
     period,
-    weekdays,
+    weekdays: weekdays.length ? weekdays.join(",") : null,
     reminder,
     color,
     image,
     streakInterval,
-    frequency,
+    frequency: Number(frequency),
     user: {
       connect: { uid: user.uid },
     },
@@ -86,6 +100,7 @@ async function createHabit(req: Request, res: Response) {
     const data = await prisma.habit.create({ data: habitInput });
     return res.status(201).json(data);
   } catch (err) {
+    console.log(err);
     return res.status(500).json(`error creating habit`);
   }
 }
@@ -105,7 +120,7 @@ async function updateHabit(req: Request, res: Response) {
 
   try {
     const data = await prisma.habit.update({
-      where: { id: Number(id) },
+      where: { id: id },
       data: habit,
     });
     if (!data) return res.sendStatus(404);
@@ -120,7 +135,7 @@ async function deleteHabit(req: Request, res: Response) {
   if (!req.user) return res.status(401).send();
   const { id } = req.params;
   try {
-    const data = await prisma.habit.delete({ where: { id: Number(id) } });
+    const data = await prisma.habit.delete({ where: { id: id } });
     if (!data) return res.sendStatus(404);
     return res.status(200).json(data);
   } catch (err) {
@@ -135,7 +150,7 @@ async function logHabit(req: Request, res: Response) {
   const { event } = req.body;
 
   try {
-    const habit = await prisma.habit.findUnique({ where: { id: Number(id) } });
+    const habit = await prisma.habit.findUnique({ where: { id: id } });
     if (!habit) return res.sendStatus(404);
 
     // Find last non-duplicate log
@@ -172,7 +187,7 @@ async function getHabitLogs(req: Request, res: Response) {
   const { id } = req.params;
 
   try {
-    const logs = await prisma.log.findMany({ where: { habitId: Number(id) } });
+    const logs = await prisma.log.findMany({ where: { habitId: id } });
     if (!logs.length) return res.sendStatus(404);
     return res.status(200).json(logs);
   } catch (err) {

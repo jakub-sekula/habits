@@ -25,7 +25,7 @@ model Session {
 }
 
 model Habit {
-    id             Int      @id @default(autoincrement())
+    id             String      @id @default(cuid())
     name           String
     frequency      Int      @default(1)
     period         String   @default("day")
@@ -65,7 +65,7 @@ model Log {
 
     // Relations
     habit     Habit?   @relation(fields: [habitId], references: [id], onDelete: Cascade)
-    habitId   Int?
+    habitId   String?
     tracker   Tracker? @relation(fields: [trackerId], references: [id], onDelete: Cascade)
     trackerId Int?
 }
@@ -79,5 +79,5 @@ model Streak {
 
     // Relations
     habit   Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
-    habitId Int
+    habitId String
 }
