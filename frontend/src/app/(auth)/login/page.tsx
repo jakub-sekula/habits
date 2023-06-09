@@ -1,37 +1,33 @@
 "use client";
-import Link from "next/link";
-import styles from "./page.module.css";
-import clsx from "clsx";
-
-import { useAuth, AuthContextType } from "@/components/AuthContext";
+import styles from "../page.module.css";
 import { useState, useRef, useEffect } from "react";
-import auth from "@/lib/auth";
-
-import * as Form from "@radix-ui/react-form";
-import * as Tabs from "@radix-ui/react-tabs";
-import * as Toast from "@radix-ui/react-toast";
-
-import { BsGoogle, BsGithub, BsFacebook } from "react-icons/bs";
-
+import { useRouter } from "next/navigation";
 import {
   GoogleAuthProvider,
   GithubAuthProvider,
   signInWithPopup,
-  linkWithPopup,
-  User,
   signInAnonymously,
-  Auth,
 } from "firebase/auth";
+import clsx from "clsx";
+import * as Form from "@radix-ui/react-form";
+import * as Tabs from "@radix-ui/react-tabs";
+import * as Toast from "@radix-ui/react-toast";
+import * as Separator from "@radix-ui/react-separator";
+import { BsGoogle, BsGithub, BsFacebook } from "react-icons/bs";
+import { useAuth, AuthContextType } from "@/components/AuthContext";
+import { synchronizeWithBackend } from "@/lib/utils";
 
 export default function Page() {
-  const { currentUser, login, logout } = useAuth() as AuthContextType;
+  const router = useRouter();
+  const { login, auth } = useAuth() as AuthContextType;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [open, setOpen] = useState(false);
   const timerRef = useRef(0);
 
   useEffect(() => {
-    return () => clearTimeout(timerRef.current);
+    const ref = timerRef.current;
+    return () => clearTimeout(ref);
   }, []);
 
   const [email, setEmail] = useState("");
@@ -42,7 +38,8 @@ export default function Page() {
     try {
       setLoading(true);
       await login(email, password);
-      synchronizeWithBackend(auth)
+      synchronizeWithBackend(auth);
+      router.push("/profile");
     } catch (e) {
       console.log(e);
       setError(e);
@@ -57,19 +54,65 @@ export default function Page() {
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <h2 className="mt-4 text-3xl text-center tracking-tight font-light :">
-            Register a new account
+            Sign in to your account
           </h2>
 
-          <Tabs.Root className={styles.loginBox} defaultValue="passwordSignIn">
+          <Tabs.Root className={styles.loginBox} defaultValue="socialSignIn">
             <Tabs.List className={styles.tabBar}>
-              <Tabs.Trigger className={styles.tab} value="passwordSignIn">
-                Register with email
-              </Tabs.Trigger>
               <Tabs.Trigger className={styles.tab} value="socialSignIn">
-                Register with social
+                Social sign in
+              </Tabs.Trigger>
+              <Tabs.Trigger className={styles.tab} value="passwordSignIn">
+                Password sign in
               </Tabs.Trigger>
             </Tabs.List>
-
+            <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
+              <button
+                onClick={async () => {
+                  await signInWithPopup(auth, new GoogleAuthProvider());
+                  synchronizeWithBackend(auth);
+                  router.push("/profile");
+                }}
+                className={clsx("button")}
+              >
+                <BsGoogle size={24} /> Sign in with Google
+              </button>
+              <button
+                onClick={async () => {
+                  await signInWithPopup(auth, new GithubAuthProvider());
+                  synchronizeWithBackend(auth);
+                  router.push("/profile");
+                }}
+                className={clsx("button")}
+              >
+                <BsGithub size={24} /> Sign in with Github
+              </button>
+              <button
+                onClick={async () => {
+                  await signInWithPopup(auth, new GoogleAuthProvider());
+                  synchronizeWithBackend(auth);
+                  router.push("/profile");
+                }}
+                className={clsx("button")}
+              >
+                <BsFacebook size={24} /> Sign in with Facebook
+              </button>
+              <div className="flex gap-4 items-center">
+                <Separator.Root className={styles.separator} />
+                <span className="text-sm leading-none text-slate-500">or</span>
+                <Separator.Root className={styles.separator} />
+              </div>
+              <button
+                onClick={async () => {
+                  await signInAnonymously(auth);
+                  synchronizeWithBackend(auth);
+                  router.push("/profile");
+                }}
+                className={clsx("button")}
+              >
+                Sign in as guest
+              </button>
+            </Tabs.Content>
             <Tabs.Content
               value="passwordSignIn"
               className={styles.tabContainer}
@@ -121,50 +164,23 @@ export default function Page() {
                   </Form.Control>
                 </Form.Field>
                 <Form.Submit asChild>
-                  <button type="submit" className={styles.button}>
-                    Log in
-                  </button>
+                  <button className={clsx("button", "w-full")}>Sign in</button>
                 </Form.Submit>
               </Form.Root>
+              <div className="flex gap-4 items-center">
+                <Separator.Root className={styles.separator} />
+                <span className="text-sm leading-none text-slate-500">or</span>
+                <Separator.Root className={styles.separator} />
+              </div>
               <button
                 onClick={async () => {
                   await signInAnonymously(auth);
                   synchronizeWithBackend(auth);
-
+                  router.push("/profile");
                 }}
-                className={styles.button}
+                className={clsx("button")}
               >
-                Log in as guest
-              </button>
-            </Tabs.Content>
-            <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
-              <button
-                onClick={async () => {
-                  await signInWithPopup(auth, new GoogleAuthProvider());
-                  synchronizeWithBackend(auth);
-                }}
-                className={styles.button}
-              >
-                <BsGoogle size={24} /> Sign in with Google
-              </button>
-              <button
-                onClick={async () => {
-                  await signInWithPopup(auth, new GithubAuthProvider());
-                  synchronizeWithBackend(auth);
-                }}
-                className={styles.button}
-              >
-                <BsGithub size={24} /> Sign in with Github
-              </button>
-              <button
-                tabIndex={0}
-                onClick={async () => {
-                  await signInWithPopup(auth, new GoogleAuthProvider());
-                  synchronizeWithBackend(auth);
-                }}
-                className={styles.button}
-              >
-                <BsFacebook size={24} /> Sign in with Facebook
+                Sign in as guest
               </button>
             </Tabs.Content>
           </Tabs.Root>
@@ -198,16 +214,4 @@ export default function Page() {
       ) : null}
     </>
   );
-}
-
-async function synchronizeWithBackend(auth: Auth) {
-  const token = await auth.currentUser?.getIdToken();
-  const res = await fetch("http://localhost:3000/auth/login", {
-    method: "POST",
-    headers: new Headers({
-      Authorization: `Bearer ${token}`,
-    }),
-  });
-  const json = await res.json();
-  console.log("response from express: ", json);
 }

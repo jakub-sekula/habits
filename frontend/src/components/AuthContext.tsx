@@ -6,7 +6,8 @@ import {
   User as FirebaseUser,
   UserCredential,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithPopup,
+  Auth
 } from "firebase/auth";
 
 import auth from "@/lib/auth";
@@ -17,6 +18,7 @@ export interface AuthContextType {
   register: (email: string, password: string) => Promise<UserCredential>;
   logout: () => void;
   loginWithGoogle: () => void;
+  auth: Auth
 }
 
 export const AuthContext = createContext<AuthContextType | null>(null);
@@ -58,7 +60,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     login,
     register,
     logout,
-    loginWithGoogle
+    loginWithGoogle,
+    auth
   };
 
   return (

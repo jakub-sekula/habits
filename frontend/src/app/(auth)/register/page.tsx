@@ -1,35 +1,31 @@
 "use client";
-import Link from "next/link";
-import styles from "./page.module.css";
-import clsx from "clsx";
 
-import { synchronizeWithBackend } from "@/lib/utils";
-
-import { useAuth, AuthContextType } from "@/components/AuthContext";
+import styles from "../page.module.css";
 import { useState, useRef, useEffect } from "react";
-import auth from "@/lib/auth";
-
-import * as Form from "@radix-ui/react-form";
-import * as Tabs from "@radix-ui/react-tabs";
-import * as Toast from "@radix-ui/react-toast";
-
-import { BsGoogle, BsGithub, BsFacebook } from "react-icons/bs";
-
+import { useRouter } from "next/navigation";
 import {
   GoogleAuthProvider,
   GithubAuthProvider,
   signInWithPopup,
   signInAnonymously,
+  Auth
 } from "firebase/auth";
+import clsx from "clsx";
+import * as Form from "@radix-ui/react-form";
+import * as Tabs from "@radix-ui/react-tabs";
+import * as Toast from "@radix-ui/react-toast";
+import * as Separator from "@radix-ui/react-separator";
+import { BsGoogle, BsGithub, BsFacebook } from "react-icons/bs";
+import { useAuth, AuthContextType } from "@/components/AuthContext";
+import { synchronizeWithBackend } from "@/lib/utils";
 
-import { useRouter } from "next/navigation";
 export default function Page() {
-  const router = useRouter();
-  const { currentUser, login, logout } = useAuth() as AuthContextType;
+  const { login, auth } = useAuth() as AuthContextType;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [open, setOpen] = useState(false);
   const timerRef = useRef(0);
+  const router = useRouter();
 
   useEffect(() => {
     const ref = timerRef.current;
@@ -45,7 +41,6 @@ export default function Page() {
       setLoading(true);
       await login(email, password);
       synchronizeWithBackend(auth);
-      router.push("/profile");
     } catch (e) {
       console.log(e);
       setError(e);
@@ -60,16 +55,16 @@ export default function Page() {
       <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
           <h2 className="mt-4 text-3xl text-center tracking-tight font-light :">
-            Sign in to your account
+            Register a new account
           </h2>
 
           <Tabs.Root className={styles.loginBox} defaultValue="passwordSignIn">
             <Tabs.List className={styles.tabBar}>
               <Tabs.Trigger className={styles.tab} value="passwordSignIn">
-                Password sign in
+                Register with email
               </Tabs.Trigger>
               <Tabs.Trigger className={styles.tab} value="socialSignIn">
-                Social sign in
+                Register with social
               </Tabs.Trigger>
             </Tabs.List>
 
@@ -124,22 +119,26 @@ export default function Page() {
                   </Form.Control>
                 </Form.Field>
                 <Form.Submit asChild>
-                  <button type="submit" className={styles.button}>
+                  <button type="submit" className={"button"}>
                     Log in
                   </button>
                 </Form.Submit>
               </Form.Root>
+              <div className="flex gap-4 items-center">
+                <Separator.Root className={styles.separator} />
+                <span className="text-sm leading-none text-slate-500">or</span>
+                <Separator.Root className={styles.separator} />
+              </div>
               <button
                 onClick={async () => {
                   await signInAnonymously(auth);
                   synchronizeWithBackend(auth);
                   router.push("/profile");
                 }}
-                className={styles.button}
+                className={"button"}
               >
-                Log in as guest
+                Sign in as guest
               </button>
-             
             </Tabs.Content>
             <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
               <button
@@ -147,7 +146,7 @@ export default function Page() {
                   await signInWithPopup(auth, new GoogleAuthProvider());
                   synchronizeWithBackend(auth);
                 }}
-                className={styles.button}
+                className={"button"}
               >
                 <BsGoogle size={24} /> Sign in with Google
               </button>
@@ -156,16 +155,17 @@ export default function Page() {
                   await signInWithPopup(auth, new GithubAuthProvider());
                   synchronizeWithBackend(auth);
                 }}
-                className={styles.button}
+                className={"button"}
               >
                 <BsGithub size={24} /> Sign in with Github
               </button>
               <button
+                tabIndex={0}
                 onClick={async () => {
                   await signInWithPopup(auth, new GoogleAuthProvider());
                   synchronizeWithBackend(auth);
                 }}
-                className={styles.button}
+                className={"button"}
               >
                 <BsFacebook size={24} /> Sign in with Facebook
               </button>
@@ -202,4 +202,3 @@ export default function Page() {
     </>
   );
 }
-

@@ -31,6 +31,6 @@
   @apply bg-white rounded-md border border-slate-200 overflow-hidden;
 }
 
-.button {
-  @apply w-full flex gap-4 justify-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-800 hover:bg-sky-900 focus:shadow-[0_0_0_2px] focus:shadow-black
+.separator {
+  @apply h-px bg-slate-300 w-full
 }

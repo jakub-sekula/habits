@@ -1,3 +1,5 @@
+const { mauve, violet } = require('@radix-ui/colors');
+
 /** @type {import('tailwindcss').Config} */
 module.exports = {
   content: [
@@ -11,6 +13,10 @@ module.exports = {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
           'conic-gradient(from 180deg at 50% 50%, var(--tw-gradient-stops))',
+      },
+      colors: {
+        ...mauve,
+        ...violet,
       },
     },
   },

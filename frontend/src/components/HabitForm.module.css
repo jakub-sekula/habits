@@ -1,0 +1,11 @@
+.selectItem {
+	@apply text-[13px] leading-none text-violet11 rounded-[3px] flex items-center h-[25px] pr-[35px] pl-[25px] relative select-none data-[disabled]:text-mauve8 data-[disabled]:pointer-events-none data-[highlighted]:outline-none data-[highlighted]:bg-violet9 data-[highlighted]:text-violet1
+}
+
+.fieldLabel {
+	@apply font-semibold
+}
+
+.shadow {
+	box-shadow: 0px 279px 112px rgba(0, 0, 0, 0.01), 0px 157px 94px rgba(0, 0, 0, 0.04), 0px 70px 70px rgba(0, 0, 0, 0.06), 0px 17px 38px rgba(0, 0, 0, 0.07), 0px 0px 0px rgba(0, 0, 0, 0.07);
+}

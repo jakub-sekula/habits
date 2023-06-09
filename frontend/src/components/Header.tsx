@@ -3,10 +3,12 @@ import React from "react";
 import { useAuth, AuthContextType } from "./AuthContext";
 import Link from "next/link";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
+import * as Avatar from "@radix-ui/react-avatar";
 import styles from "./Header.module.css";
 import clsx from "clsx";
 import { usePathname } from "next/navigation";
-
+import { getInitials } from "@/lib/utils";
+import { Separator } from "@radix-ui/react-separator";
 function NavLink({
   href,
   children,
@@ -32,13 +34,15 @@ export default function Header() {
   const { currentUser, logout } = useAuth() as AuthContextType;
 
   return (
-    <header>
-      <NavigationMenu.Root className="w-screen h-min bg-sky-50 relative">
-        <NavigationMenu.List className="flex w-full">
-          <NavigationMenu.Item className="flex-grow w-full">
-            <NavLink href="/">Home</NavLink>
+    <header className={styles.header}>
+      <NavigationMenu.Root className="w-full h-min relative">
+        <NavigationMenu.List className="flex w-full h-12">
+          <NavigationMenu.Item className="flex-grow w-full text-xl font-bold items-center flex px-3">
+            <Link aria-label="homepage" href="/">
+              Habiti.co
+            </Link>
           </NavigationMenu.Item>
-          <div className="flex-grow flex w-full bg-yellow-600 justify-center">
+          <div className="flex justify-center gap-4 ">
             <NavigationMenu.Item>
               <NavLink href="/habits">Habits</NavLink>
             </NavigationMenu.Item>
@@ -51,33 +55,64 @@ export default function Header() {
           </div>
 
           {currentUser ? (
-            <NavigationMenu.Item className={"flex-grow w-full bg-blue-200"}>
-              <div className="bg-red-400 z-50 w-fit ml-auto relative">
-
-              <NavigationMenu.Trigger className={clsx(styles.navItem)}>
-                {`Logged in as ${currentUser.displayName}`}
-              </NavigationMenu.Trigger>
-              <NavigationMenu.Content className=" bg-orange-400 absolute w-full">
-                <ul>
-                  <li className=" w-full">
-                    <Link href="/profile" className=" w-full block py-2 px-3 bg-slate-400 hover:bg-slate-500">Profile</Link>
-                  </li>
-                  <li className="w-full block bg-slate-400 hover:bg-slate-500">
-                    <button
-                    className="w-full h-full text-left py-2 px-3"
-                      onClick={() => {
-                        logout();
-                      }}
+            <NavigationMenu.Item className={"flex-grow w-full"}>
+              <div className="z-50 w-fit ml-auto relative">
+                <NavigationMenu.Trigger
+                  className={clsx(
+                    styles.navItem,
+                    "flex flex-row-reverse gap-2 items-center"
+                  )}
+                >
+                  <Avatar.Root className="inline-flex h-8 w-8 text-xs select-none items-center justify-center overflow-hidden rounded-full align-middle">
+                    <Avatar.Image
+                      className="h-full w-full object-cover"
+                      src={currentUser?.photoURL as string}
+                      alt={currentUser?.displayName || "Profile image"}
+                    />
+                    <Avatar.Fallback
+                      delayMs={200}
+                      className="leading-none flex h-full w-full items-center justify-center bg-white font-medium"
                     >
-                      Logout
-                    </button>
-                  </li>
-                </ul>
-              </NavigationMenu.Content>
+                      {getInitials(currentUser?.displayName)}
+                    </Avatar.Fallback>
+                  </Avatar.Root>
+                  <span>
+                    {`${
+                      currentUser.displayName === null
+                        ? "Anonymous"
+                        : currentUser.displayName
+                    }`}
+                  </span>
+                </NavigationMenu.Trigger>
+                <NavigationMenu.Content className={styles.navItemDropdown}>
+                  <ul>
+                    <li className="w-full">
+                      <Link
+                        href="/profile"
+                        className=" w-full block py-2 px-3 hover:bg-sky-50"
+                      >
+                        Profile
+                      </Link>
+                    </li>
+                    <Separator className="w-full h-px bg-slate-200" />
+                    <li className="w-full hover:bg-sky-50">
+                      <button
+                        className="w-full h-full text-left py-2 px-3"
+                        onClick={() => {
+                          logout();
+                        }}
+                      >
+                        Logout
+                      </button>
+                    </li>
+                  </ul>
+                </NavigationMenu.Content>
               </div>
             </NavigationMenu.Item>
           ) : (
-            <NavigationMenu.Item className={"flex-grow w-full bg-blue-200 flex justify-end"}>
+            <NavigationMenu.Item
+              className={"flex-grow w-full flex justify-end"}
+            >
               <NavigationMenu.Link className={styles.navItem} asChild>
                 <Link href="/login">Log in</Link>
               </NavigationMenu.Link>
