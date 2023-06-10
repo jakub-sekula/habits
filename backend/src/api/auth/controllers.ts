@@ -2,6 +2,7 @@ import "dotenv/config.js";
 import { Request, Response, NextFunction } from "express";
 import { DecodedIdToken } from "firebase-admin/auth";
 import { PrismaClient, User } from "@prisma/client";
+import { seed } from "@/../prisma/seed";
 
 declare global {
   namespace Express {
@@ -83,6 +84,8 @@ export async function loginUser(
           image: req.user?.image,
         },
       });
+
+      await seed(user.uid)
 
       res.json({ message: "User created successfully", user: user });
     } catch (error) {

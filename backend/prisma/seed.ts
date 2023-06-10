@@ -7,12 +7,9 @@ const { PrismaClient } = require("@prisma/client");
 const prisma = new PrismaClient();
 
 // Seed function
-async function seed() {
-  const userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2"; // Replace with the actual user ID
-
+export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
   // Delete all existing habits and logs
-  await prisma.log.deleteMany();
-  await prisma.habit.deleteMany();
+  await prisma.habit.deleteMany({ where: { userId } });
 
   // Helper function to generate logs
   async function generateLogs(habit: Habit, requiredLogs: number) {
@@ -72,28 +69,28 @@ async function seed() {
   const habits = [
     {
       name: "Daily Habit",
-      image:"☎️",
+      image: "☎️",
       frequency: 2,
       color: "red",
       period: "day",
     },
     {
       name: "Weekly Habit",
-      image:"⭐️",
+      image: "⭐️",
       frequency: 4,
       color: "green",
       period: "week",
     },
     {
       name: "Monthly Habit",
-      image:"🤡",
+      image: "🤡",
       frequency: 3,
       color: "blue",
       period: "month",
     },
     {
       name: "Yearly Habit",
-      image:"📸",
+      image: "📸",
       frequency: 6,
       color: "violet",
       period: "year",
