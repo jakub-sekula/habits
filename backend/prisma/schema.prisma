@@ -33,7 +33,6 @@ model Habit {
     color          String?
     image          String?
     reminder       Boolean  @default(false)
-    streakInterval Int      @default(86400) // 1 day
     createdAt      DateTime @default(now())
 
     // Relations
@@ -45,7 +44,7 @@ model Habit {
 }
 
 model Tracker {
-    id       Int      @id @default(autoincrement())
+    id       String      @id @default(cuid())
     name     String
     color    String?
     image    String?
@@ -59,7 +58,7 @@ model Tracker {
 }
 
 model Log {
-    id        Int      @id @default(autoincrement())
+    id        String      @id @default(cuid())
     event     String
     createdAt DateTime @default(now())
 
@@ -67,11 +66,11 @@ model Log {
     habit     Habit?   @relation(fields: [habitId], references: [id], onDelete: Cascade)
     habitId   String?
     tracker   Tracker? @relation(fields: [trackerId], references: [id], onDelete: Cascade)
-    trackerId Int?
+    trackerId String?
 }
 
 model Streak {
-    id         Int      @id @default(autoincrement())
+    id         String      @id @default(cuid())
     active     Boolean
     score      Int
     startedAt  DateTime

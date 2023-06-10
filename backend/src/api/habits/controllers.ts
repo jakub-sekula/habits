@@ -1,10 +1,11 @@
 import { Request, Response } from "express";
 import { PrismaClient, Prisma, Log, Habit } from "@prisma/client";
-import { calculateStreak, calculateStreakInterval } from "./streaks";
-
-interface ExtendedHabit extends Habit {
-  streak?: number;
-}
+import {
+  calculateStreaks,
+  calculateStreakInterval,
+  calculateCounts,
+  generateProgressString,
+} from "./streaks";
 
 const prisma = new PrismaClient();
 
@@ -20,8 +21,6 @@ const prisma = new PrismaClient();
 async function getAllHabits(req: Request, res: Response) {
   if (!req.user) return res.sendStatus(401);
 
-  // await new Promise((resolve) => setTimeout(resolve, 2000));
-
   try {
     const habits = await prisma.habit.findMany({
       where: { user: { uid: req.user.uid } },
@@ -30,14 +29,26 @@ async function getAllHabits(req: Request, res: Response) {
 
     const habitsWithStreaks = await Promise.all(
       habits.map(async (habit) => {
-        const streak = await calculateStreak(habit);
-        return { ...habit, ...streak };
+        const { loggedCount, totalCount } = await calculateCounts(habit);
+        const progressString = generateProgressString(
+          loggedCount,
+          totalCount,
+          habit.period
+        );
+        const streak = await calculateStreaks(habit);
+
+        const logsCount = await prisma.log.count({
+          where: { habitId: habit.id },
+        });
+        return { ...habit, ...streak, progressString, logsCount };
       })
     );
 
     return res.status(200).json(habitsWithStreaks);
   } catch (err) {
-    return res.status(500).send(`Error getting habit`);
+    console.log(err);
+
+    return res.status(500).send(`Error getting habits`);
   }
 }
 
@@ -59,10 +70,17 @@ async function getHabit(req: Request, res: Response) {
     if (!habit) return res.sendStatus(404);
     if (habit.userId != req.user?.uid) return res.sendStatus(403);
 
-    const streak = await calculateStreak(habit);
+    const { loggedCount, totalCount } = await calculateCounts(habit);
+    const progressString = generateProgressString(
+      loggedCount,
+      totalCount,
+      habit.period
+    );
+    const streak = await calculateStreaks(habit);
 
-    return res.status(200).json({ ...habit, ...streak });
+    return res.status(200).json({ ...habit, ...streak, progressString });
   } catch (err) {
+    console.log(err);
     return res.status(500).send(`Error getting habit`);
   }
 }
@@ -77,10 +95,10 @@ async function createHabit(req: Request, res: Response) {
 
   let { name, frequency, period, weekdays, reminder, image, color } = req.body;
 
-  const streakInterval =
-    !!frequency && !!period
-      ? calculateStreakInterval(Number(frequency), period)
-      : undefined;
+  // const streakInterval =
+  //   !!frequency && !!period
+  //     ? calculateStreakInterval(Number(frequency), period)
+  //     : undefined;
 
   const habitInput: Prisma.HabitCreateInput = {
     name,
@@ -89,7 +107,7 @@ async function createHabit(req: Request, res: Response) {
     reminder,
     color,
     image,
-    streakInterval,
+    // streakInterval,
     frequency: Number(frequency),
     user: {
       connect: { uid: user.uid },
@@ -107,8 +125,30 @@ async function createHabit(req: Request, res: Response) {
 
 async function updateHabit(req: Request, res: Response) {
   if (!req.user) return res.status(401).send();
+  const allowedParams = [
+    "name",
+    "frequency",
+    "period",
+    "weekdays",
+    "color",
+    "image",
+    "reminder",
+  ];
+
+  const receivedParams = Object.keys(req.body);
+  const disallowedParams = receivedParams.filter(
+    (param) => !allowedParams.includes(param)
+  );
+
+  if (disallowedParams.length > 0) {
+    return res
+      .status(400)
+      .json({ message: "Bad request: Invalid parameters.", disallowedParams });
+  }
+
   const { id } = req.params;
-  const { name, frequency, period, weekdays, reminder } = req.body;
+  const { name, frequency, period, weekdays, color, image, reminder } =
+    req.body;
 
   const habit = {
     name,
@@ -116,6 +156,8 @@ async function updateHabit(req: Request, res: Response) {
     period,
     weekdays,
     reminder,
+    color,
+    image,
   };
 
   try {
@@ -153,21 +195,8 @@ async function logHabit(req: Request, res: Response) {
     const habit = await prisma.habit.findUnique({ where: { id: id } });
     if (!habit) return res.sendStatus(404);
 
-    // Find last non-duplicate log
-    const previousLog = await prisma.log.findFirst({
-      where: { habit: { id: habit.id }, event: "done" },
-      orderBy: { createdAt: "desc" },
-    });
-
-    const previousLogTime = previousLog?.createdAt;
-
-    const isDuplicated = previousLogTime
-      ? (new Date().getTime() - previousLog?.createdAt.getTime()) / 1000 <
-        habit.streakInterval * 0.9
-      : false;
-
     const logInput: Prisma.LogCreateInput = {
-      event: !isDuplicated ? event : `${event} - duplicated`,
+      event: event,
       habit: {
         connect: { id: habit.id },
       },
@@ -187,7 +216,10 @@ async function getHabitLogs(req: Request, res: Response) {
   const { id } = req.params;
 
   try {
-    const logs = await prisma.log.findMany({ where: { habitId: id } });
+    const logs = await prisma.log.findMany({
+      where: { habitId: id },
+      orderBy: { createdAt: "desc" }, // Sort by createdAt in descending order
+    });
     if (!logs.length) return res.sendStatus(404);
     return res.status(200).json(logs);
   } catch (err) {
