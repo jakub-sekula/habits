@@ -1,5 +1,5 @@
 export interface Habit {
-  id: number;
+  id: string;
   name: string;
   frequency: number;
   period: string;
@@ -13,6 +13,19 @@ export interface Habit {
   currentStreak: number;
   longestStreak: number;
   streakActive: boolean;
-  streakExpiresTimestamp: number | null;
-  streakExpires: string | null;
+  streakExpiresTimestamp?: number | null;
+  streakExpires?: string | null;
+  progressString?: string;
+  logsCount: number;
+  score: number;
+  multiplier: number | null;
+  archived: boolean
+}
+
+export interface Log {
+  id: string;
+  event: string;
+  createdAt: Date;
+  habit?: Habit;
+  habitId?: string;
 }

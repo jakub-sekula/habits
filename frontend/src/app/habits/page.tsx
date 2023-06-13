@@ -17,8 +17,10 @@ export default function Page() {
     async function getHabits() {
       setLoading(true);
       const token = await currentUser?.getIdToken();
-      if (!token) return setLoading(false);
-
+      if (!token) {
+        setHabits(null);
+        return setLoading(false);
+      }
       const headers = new Headers({
         Authorization: `Bearer ${token}`,
       });
@@ -31,10 +33,10 @@ export default function Page() {
 
       console.log(token);
 
-      const resJson = (await res.json()) as Habit[];
+      const resJson = (await res.json()) as any;
       setHabits(
-        resJson.sort(
-          (a, b) =>
+        resJson.habits.filter((habit: Habit) => !habit.archived).sort(
+          (a: any, b: any) =>
             new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         )
       );
@@ -44,9 +46,11 @@ export default function Page() {
     getHabits();
   }, [currentUser]);
 
-  console.log(habits);
-
   if (loading) return "Loading";
+
+  const totalScore = habits?.reduce((score, habit) => {
+    return score + habit.score;
+  }, 0) as number;
 
   return (
     <>
@@ -66,7 +70,10 @@ export default function Page() {
       </div>
       <div className="w-full max-w-4xl text-zinc-800">
         <h1 className="text-4xl font-serif font-bold">Today&apos;s tasks</h1>
-        <p className="text-zinc-500">You have {habits?.length} tasks left for today</p>
+        <p className="text-zinc-500">
+          You have {habits?.length} tasks left for today
+        </p>
+        <p className="text-zinc-500">Total score {Math.floor(totalScore)} 🏆</p>
       </div>
       <div className="w-full max-w-4xl grid gap-4 grid-cols-2">
         {!formOpen ? (
@@ -80,7 +87,9 @@ export default function Page() {
           </button>
         ) : null}
         {!!habits
-          ? habits?.map((habit) => <HabitCard key={habit.id} habit={habit} />)
+          ? habits?.map((habit) => (
+              <HabitCard key={habit.id} habit={habit} setHabits={setHabits} />
+            ))
           : "no habits"}
       </div>
     </>

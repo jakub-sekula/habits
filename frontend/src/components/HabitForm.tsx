@@ -96,6 +96,7 @@ export default function HabitForm({
             <input
               required
               {...register("name")}
+              placeholder="My habit"
               className="w-64 bg-white text-slate-800 py-2 px-3 rounded-md"
             />
           </Form.Control>
@@ -131,6 +132,8 @@ export default function HabitForm({
             <Form.Control asChild>
               <input
                 type="number"
+                min={0}
+                defaultValue={1}
                 required
                 {...register("frequency")}
                 placeholder="2"
