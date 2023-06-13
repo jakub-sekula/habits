@@ -6,6 +6,8 @@ export async function calculateStreaks(habit: Habit): Promise<{
   streakActive: boolean;
   currentStreak: number;
   longestStreak: number;
+  score: number;
+  multiplier: number;
 }> {
   const { frequency, period } = habit;
   const logs = await prisma.log.findMany({
@@ -25,6 +27,8 @@ export async function calculateStreaks(habit: Habit): Promise<{
       streakActive: false,
       currentStreak: 0,
       longestStreak: 0,
+      score: 0,
+      multiplier: 0,
     };
   }
 
@@ -33,6 +37,8 @@ export async function calculateStreaks(habit: Habit): Promise<{
     period,
     frequency
   );
+
+  const score = calculateScore(consecutivePeriods, period, logs.length);
 
   const longestStreak = consecutivePeriods.reduce(
     (maxDuration, { duration }) => {
@@ -46,57 +52,19 @@ export async function calculateStreaks(habit: Habit): Promise<{
     period
   );
 
+  let multiplier = 0;
+
+  if (streakActive) {
+    multiplier = getMultiplier(currentStreak, period);
+  }
+
   return {
     streakActive,
     currentStreak,
     longestStreak,
+    score,
+    multiplier,
   };
-}
-
-/**
- * Calculate the streak interval in seconds based on the frequency and period
- * @param frequency - The frequency of habit completion
- * @param period - The period of habit completion (second, minute, hour, day, week, fortnight, month, year)
- * @returns - The calculated streak interval in seconds
- */
-export function calculateStreakInterval(
-  frequency: number,
-  period: string
-): number {
-  let periodNumeric = 24 * 60 * 60;
-
-  switch (period) {
-    case "second":
-      periodNumeric = 1;
-      break;
-    case "minute":
-      periodNumeric = 60;
-      break;
-    case "hour":
-      periodNumeric = 60 * 60;
-      break;
-    case "day":
-      periodNumeric = 24 * 60 * 60;
-      break;
-    case "week":
-      periodNumeric = 7 * 24 * 60 * 60;
-      break;
-    case "fortnight":
-      periodNumeric = 14 * 24 * 60 * 60;
-      break;
-    case "month":
-      periodNumeric = 30 * 24 * 60 * 60;
-      break;
-    case "year":
-      periodNumeric = 365 * 24 * 60 * 60;
-      break;
-    default:
-      break;
-  }
-
-  const intervalSeconds = periodNumeric * frequency;
-
-  return intervalSeconds;
 }
 
 // Function to calculate logged count and total count for a habit in a given period
@@ -124,7 +92,7 @@ export async function calculateCounts(habit: Habit) {
       );
       break;
     case "week":
-      const firstDayOfWeek = today.getDate() - today.getDay();
+      const firstDayOfWeek = today.getDate() - today.getDay() + 1;
       startDate = new Date(
         today.getFullYear(),
         today.getMonth(),
@@ -193,7 +161,7 @@ function findConsecutivePeriods(
   entriesByPeriod: { [period: string]: number },
   period: string,
   frequency: number
-): Array<{ periodStart: string; periodEnd: string; duration: number }> {
+): { periodStart: string; periodEnd: string; duration: number }[] {
   const consecutivePeriods: Array<{
     periodStart: string;
     periodEnd: string;
@@ -211,7 +179,7 @@ function findConsecutivePeriods(
       }
       periodEnd = key;
     } else {
-      if (periodStart !== "" && periodEnd !== "") {
+      if (!!periodStart && !!periodEnd) {
         consecutivePeriods.push({
           periodStart,
           periodEnd,
@@ -224,8 +192,8 @@ function findConsecutivePeriods(
 
     if (
       index === Object.keys(entriesByPeriod).length - 1 &&
-      periodStart !== "" &&
-      periodEnd !== ""
+      !!periodStart &&
+      !!periodEnd
     ) {
       consecutivePeriods.push({
         periodStart,
@@ -245,6 +213,8 @@ function calculateDuration(
 ): number {
   let start: number;
   let end: number;
+
+  if (!periodStart || !periodEnd) return 0;
 
   switch (period) {
     case "day":
@@ -315,7 +285,7 @@ function getPeriodFromDate(date: string, period: string): string {
       return `${new Date(date).getFullYear()}-Wk${weekNumber + 1}`;
     case "month":
       const [year, month] = date.split("-");
-      return `${year}-${month + 1}`;
+      return `${year}-${month}`;
     case "year":
       return date.split("-")[0];
     default:
@@ -351,13 +321,13 @@ function isStreakActive(
     const date = new Date().toISOString().split("T")[0];
 
     const duration = calculateDuration(
-      consecutivesArray[length - 1].periodEnd,
+      consecutivesArray[length - 1]?.periodEnd,
       date,
       period
     );
 
     if (
-      consecutivesArray[length - 1].periodEnd ===
+      consecutivesArray[length - 1]?.periodEnd ===
         getPeriodFromDate(date, period) ||
       duration === 2
     ) {
@@ -369,4 +339,69 @@ function isStreakActive(
     console.log(err);
     return { streakActive: false, currentStreak: 0 };
   }
+}
+
+function calculateScore(
+  consecutivePeriods: {
+    periodStart: string;
+    periodEnd: string;
+    duration: number;
+  }[],
+  period: string,
+  totalEntries: number
+): number {
+  let baseRate = getBaseRate(period);
+
+  const streaksBonus = consecutivePeriods.reduce((score, consecutivePeriod) => {
+    return (
+      score + // Accumulated score
+      baseRate * getMultiplier(consecutivePeriod.duration, period) // Bonus for streaks
+    );
+  }, 0);
+
+  const totalScore = baseRate * totalEntries + streaksBonus;
+  return totalScore;
+}
+
+function getBaseRate(period: string): number {
+  switch (period) {
+    case "day":
+      return 2.5;
+    case "week":
+      return 5;
+    case "month":
+      return 10;
+    case "year":
+      return 25;
+    default:
+      return 1;
+  }
+}
+
+function getMultiplier(
+  currentStreak: number,
+  period: string,
+  clamp = 25
+): number {
+  let exponent;
+  switch (period) {
+    case "day":
+      exponent = 1.025;
+      break;
+    case "week":
+      exponent = 1.05;
+      break;
+    case "month":
+      exponent = 1.1;
+      break;
+    case "year":
+      exponent = 1.25;
+      break;
+    default:
+      exponent = 1;
+      break;
+  }
+
+  const multiplier = Math.min(exponent ** currentStreak, clamp);
+  return multiplier;
 }

@@ -57,7 +57,14 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
             data: {
               event: "done",
               createdAt: logDate,
-              habitId: habit.id,
+              habit: {
+                connect: {id: habit.id}
+              },
+              user: {
+                connect: {uid: userId}
+              }
+              // habitId: habit.id,
+              // userId: userId,
             },
           });
         }
@@ -68,17 +75,31 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
   // Create habits
   const habits = [
     {
-      name: "Daily Habit",
+      name: "Daily Habit - once per day",
       image: "☎️",
-      frequency: 2,
+      frequency: 1,
       color: "red",
       period: "day",
     },
     {
-      name: "Weekly Habit",
+      name: "Daily Habit - twice per day",
+      image: "☎️",
+      frequency: 2,
+      color: "yellow",
+      period: "day",
+    },
+    {
+      name: "Weekly Habit - 4 times per week",
       image: "⭐️",
       frequency: 4,
       color: "green",
+      period: "week",
+    },
+    {
+      name: "Weekly Habit - 7 times per week",
+      image: "⭐️",
+      frequency: 7,
+      color: "red",
       period: "week",
     },
     {

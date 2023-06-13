@@ -2,12 +2,26 @@ import { Request, Response } from "express";
 import { PrismaClient, Prisma, Log, Habit } from "@prisma/client";
 import {
   calculateStreaks,
-  calculateStreakInterval,
   calculateCounts,
   generateProgressString,
 } from "./streaks";
 
 const prisma = new PrismaClient();
+
+async function getHabitDetails(habit: Habit) {
+  const { loggedCount, totalCount } = await calculateCounts(habit);
+  const progressString = generateProgressString(
+    loggedCount,
+    totalCount,
+    habit.period
+  );
+  const streak = await calculateStreaks(habit);
+
+  const logsCount = await prisma.log.count({
+    where: { habitId: habit.id },
+  });
+  return { ...habit, ...streak, progressString, logsCount };
+}
 
 /**
  * Fetches all habits from the database.
@@ -27,24 +41,19 @@ async function getAllHabits(req: Request, res: Response) {
     });
     if (!habits) return res.sendStatus(404);
 
-    const habitsWithStreaks = await Promise.all(
+    const habitsWithDetails = await Promise.all(
       habits.map(async (habit) => {
-        const { loggedCount, totalCount } = await calculateCounts(habit);
-        const progressString = generateProgressString(
-          loggedCount,
-          totalCount,
-          habit.period
-        );
-        const streak = await calculateStreaks(habit);
-
-        const logsCount = await prisma.log.count({
-          where: { habitId: habit.id },
-        });
-        return { ...habit, ...streak, progressString, logsCount };
+        return await getHabitDetails(habit);
       })
     );
 
-    return res.status(200).json(habitsWithStreaks);
+    const totalScore = habitsWithDetails.reduce((score, current) => {
+      return score + current.score;
+    }, 0);
+
+    return res
+      .status(200)
+      .json({ totalScore: Math.floor(totalScore), habits: habitsWithDetails });
   } catch (err) {
     console.log(err);
 
@@ -70,15 +79,7 @@ async function getHabit(req: Request, res: Response) {
     if (!habit) return res.sendStatus(404);
     if (habit.userId != req.user?.uid) return res.sendStatus(403);
 
-    const { loggedCount, totalCount } = await calculateCounts(habit);
-    const progressString = generateProgressString(
-      loggedCount,
-      totalCount,
-      habit.period
-    );
-    const streak = await calculateStreaks(habit);
-
-    return res.status(200).json({ ...habit, ...streak, progressString });
+    return res.status(200).json(await getHabitDetails(habit));
   } catch (err) {
     console.log(err);
     return res.status(500).send(`Error getting habit`);
@@ -95,11 +96,6 @@ async function createHabit(req: Request, res: Response) {
 
   let { name, frequency, period, weekdays, reminder, image, color } = req.body;
 
-  // const streakInterval =
-  //   !!frequency && !!period
-  //     ? calculateStreakInterval(Number(frequency), period)
-  //     : undefined;
-
   const habitInput: Prisma.HabitCreateInput = {
     name,
     period,
@@ -107,7 +103,6 @@ async function createHabit(req: Request, res: Response) {
     reminder,
     color,
     image,
-    // streakInterval,
     frequency: Number(frequency),
     user: {
       connect: { uid: user.uid },
@@ -115,8 +110,8 @@ async function createHabit(req: Request, res: Response) {
   };
 
   try {
-    const data = await prisma.habit.create({ data: habitInput });
-    return res.status(201).json(data);
+    const habit = await prisma.habit.create({ data: habitInput });
+    return res.status(201).json(await getHabitDetails(habit));
   } catch (err) {
     console.log(err);
     return res.status(500).json(`error creating habit`);
@@ -133,6 +128,7 @@ async function updateHabit(req: Request, res: Response) {
     "color",
     "image",
     "reminder",
+    "archived",
   ];
 
   const receivedParams = Object.keys(req.body);
@@ -147,23 +143,11 @@ async function updateHabit(req: Request, res: Response) {
   }
 
   const { id } = req.params;
-  const { name, frequency, period, weekdays, color, image, reminder } =
-    req.body;
-
-  const habit = {
-    name,
-    frequency,
-    period,
-    weekdays,
-    reminder,
-    color,
-    image,
-  };
 
   try {
     const data = await prisma.habit.update({
       where: { id: id },
-      data: habit,
+      data: req.body,
     });
     if (!data) return res.sendStatus(404);
     return res.status(200).json(data);
@@ -195,16 +179,49 @@ async function logHabit(req: Request, res: Response) {
     const habit = await prisma.habit.findUnique({ where: { id: id } });
     if (!habit) return res.sendStatus(404);
 
-    const logInput: Prisma.LogCreateInput = {
-      event: event,
-      habit: {
-        connect: { id: habit.id },
+    const initialHabit = await getHabitDetails(habit);
+
+    const log = await prisma.log.create({
+      data: {
+        event: event,
+        habit: {
+          connect: { id: initialHabit.id },
+        },
+        user: {
+          connect: { uid: req.user.uid },
+        },
       },
-    };
+    });
 
-    const log = await prisma.log.create({ data: logInput });
+    const updatedHabit = await getHabitDetails(initialHabit);
 
-    return res.status(201).json(log);
+    const pointsAdded = updatedHabit.score - initialHabit.score;
+
+    const { id: pointsId } = await prisma.points.create({
+      data: {
+        points_added: pointsAdded,
+        log: {
+          connect: { id: log.id },
+        },
+        user: { connect: { uid: req.user.uid } },
+      },
+    });
+
+    const totalScore = await prisma.points.aggregate({
+      _sum: { points_added: true },
+      where: { userId: req.user.uid },
+    });
+
+    const totals = await prisma.points.update({
+      where: { id: pointsId },
+      data: {
+        total_score: totalScore._sum.points_added as number,
+      },
+    });
+
+    return res
+      .status(201)
+      .json({ ...log, points: totals, habit: await getHabitDetails(habit) });
   } catch (err) {
     return res.status(500).send(`Error getting habit`);
   }

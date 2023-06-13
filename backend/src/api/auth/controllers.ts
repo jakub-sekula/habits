@@ -28,7 +28,6 @@ export async function registerUser(
   });
 
   if (user) return next();
-
   try {
     const user = await prisma.user.create({
       data: {
@@ -42,7 +41,7 @@ export async function registerUser(
     res.json({ message: "User created successfully", user: user });
   } catch (error) {
     console.log(error);
-    res.status(500).json({error:"Error creating user"});
+    res.status(500).json({ error: "Error creating user" });
   }
 }
 
@@ -85,14 +84,12 @@ export async function loginUser(
         },
       });
 
-      await seed(user.uid)
-
       res.json({ message: "User created successfully", user: user });
     } catch (error) {
       console.log(error);
       res.status(500).send("Error creating user");
     }
   } else {
-    return res.status(200).json("Success")
+    return res.status(200).json("Success");
   }
 }

@@ -8,75 +8,58 @@ generator client {
 }
 
 model User {
-    uid       String    @id @default(cuid())
-    username  String?   
-    email     String?   
+    uid       String   @id @default(cuid())
+    username  String?
+    email     String?
     image     String?
-    createdAt DateTime  @default(now())
+    createdAt DateTime @default(now())
     habits    Habit[]
-    trackers  Tracker[]
-}
-
-model Session {
-    id        String   @id
-    sid       String   @unique
-    data      String
-    expiresAt DateTime
+    logs      Log[]
+    points    Points[]
 }
 
 model Habit {
-    id             String      @id @default(cuid())
-    name           String
-    frequency      Int      @default(1)
-    period         String   @default("day")
-    weekdays       String?
-    color          String?
-    image          String?
-    reminder       Boolean  @default(false)
-    createdAt      DateTime @default(now())
+    id        String   @id @default(cuid())
+    name      String   @default("My habit")
+    frequency Int      @default(1)
+    period    String   @default("day")
+    weekdays  String?
+    color     String   @default("blue")
+    image     String?  @default("💪🏻")
+    reminder  Boolean  @default(false)
+    createdAt DateTime @default(now())
+    archived  Boolean  @default(false)
 
     // Relations
     user   User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
     userId String
 
-    streaks Streak[]
-    logs    Log[]
-}
-
-model Tracker {
-    id       String      @id @default(cuid())
-    name     String
-    color    String?
-    image    String?
-    reminder DateTime
-
-    // Relations
-    user   User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
-    userId String
+    type String @default("habit")
 
     logs Log[]
 }
 
 model Log {
-    id        String      @id @default(cuid())
-    event     String
+    id        String   @id @default(cuid())
+    event     String   @default("done")
     createdAt DateTime @default(now())
 
     // Relations
-    habit     Habit?   @relation(fields: [habitId], references: [id], onDelete: Cascade)
-    habitId   String?
-    tracker   Tracker? @relation(fields: [trackerId], references: [id], onDelete: Cascade)
-    trackerId String?
+    habit   Habit?  @relation(fields: [habitId], references: [id], onDelete: Cascade)
+    habitId String?
+
+    user   User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
+    userId String
+
+    points Points[]
 }
 
-model Streak {
-    id         String      @id @default(cuid())
-    active     Boolean
-    score      Int
-    startedAt  DateTime
-    finishedAt DateTime
-
-    // Relations
-    habit   Habit @relation(fields: [habitId], references: [id], onDelete: Cascade)
-    habitId String
+model Points {
+    id           String @id @default(cuid())
+    log          Log    @relation(fields: [logId], references: [id], onDelete: Cascade)
+    logId        String
+    points_added Float  @default(0)
+    total_score  Float  @default(0)
+    user         User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
+    userId       String
 }
