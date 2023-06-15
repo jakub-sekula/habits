@@ -16,11 +16,11 @@ export function isNumeric(str: any): boolean {
  * Returns a human-readable relative time string based on the time difference
  * between the current time and a given time string.
  *
- * @param {number} timestring - The time in milliseconds since the epoch (Unix timestamp).
+ * @param {number} timestamp - The time in milliseconds since the epoch (Unix timestamp).
  * @returns {string} - The relative time string.
  */
-export function getRelativeTimeString(timestring: number): string {
-  let deltaSeconds = Math.round((new Date().getTime() - timestring) / 1000);
+export function getRelativeTimeString(timestamp: number): string {
+  let deltaSeconds = Math.round((new Date().getTime() - timestamp) / 1000);
 
   // Determine if the time is in the past or the future
   const past = deltaSeconds >= 0;
@@ -89,4 +89,29 @@ export function getRelativeTimeString(timestring: number): string {
 
   // Default case: return "Sometime" if none of the above cases match
   return "Sometime";
+}
+
+export function pick(obj: object, keys: string[]) {
+  return keys.reduce<{ [key: string]: unknown }>((finalObj, key) => {
+    if (obj && Object.hasOwnProperty.call(obj, key)) {
+      finalObj[key] = obj[key as keyof typeof obj];
+    }
+    return finalObj;
+  }, {});
+}
+
+export class ApiError extends Error {
+  statusCode: number;
+  isOperational: boolean;
+
+  constructor(statusCode: number, message: string | undefined, isOperational = true, stack = '') {
+    super(message);
+    this.statusCode = statusCode;
+    this.isOperational = isOperational;
+    if (stack) {
+      this.stack = stack;
+    } else {
+      Error.captureStackTrace(this, this.constructor);
+    }
+  }
 }

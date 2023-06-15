@@ -1,5 +1,6 @@
 import express, { json } from "express";
 import { VerifyToken } from "@/middlewares/verifyFirebaseToken";
+import { errorHandler, errorConverter } from "./middlewares/error";
 
 import cors from "cors";
 
@@ -27,6 +28,12 @@ app.get("/", VerifyToken, async (req, res) => {
     user: req.user,
   });
 });
+
+// convert error to ApiError, if needed
+app.use(errorConverter);
+
+// handle error
+app.use(errorHandler);
 
 app.use((req, res, next) => {
   res.status(404).send();
