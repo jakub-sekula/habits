@@ -19,10 +19,10 @@ export async function calculateStreaks(habit: Habit): Promise<{
     },
   });
 
-  const entriesPerPeriod = calculateEntriesPerPeriod(logs, period);
+  const entryCountByPeriod = calculateEntryCountByPeriod(logs, period);
 
   // For new habits that don't have any logs yet
-  if (Object.keys(entriesPerPeriod).length === 0) {
+  if (Object.keys(entryCountByPeriod).length === 0) {
     return {
       streakActive: false,
       currentStreak: 0,
@@ -33,7 +33,7 @@ export async function calculateStreaks(habit: Habit): Promise<{
   }
 
   const consecutivePeriods = findConsecutivePeriods(
-    entriesPerPeriod,
+    entryCountByPeriod,
     period,
     frequency
   );
@@ -157,21 +157,33 @@ export function generateProgressString(
   }
 }
 
+/**
+ * Finds consecutive periods based on the count of entries for each period.
+ *
+ * @param { { [period: string]: number } } entryCountByPeriod - The count of entries for each period.
+ * @param {string} period - The type of period (e.g., "day", "week", "month", "year") to calculate the duration.
+ * @param {number} frequency - The minimum frequency required for a period to be considered consecutive.
+ * @returns {Array<Object>} An array of objects representing consecutive periods.
+ * Each object has the properties:
+ *   - periodStart: The start of the consecutive period.
+ *   - periodEnd: The end of the consecutive period.
+ *   - duration: The duration of the consecutive period.
+ */
 function findConsecutivePeriods(
-  entriesByPeriod: { [period: string]: number },
+  entryCountByPeriod: { [period: string]: number },
   period: string,
   frequency: number
-): { periodStart: string; periodEnd: string; duration: number }[] {
+): Array<{ periodStart: string; periodEnd: string; duration: number }> {
   const consecutivePeriods: Array<{
     periodStart: string;
     periodEnd: string;
     duration: number;
   }> = [];
-  let periodStart: string = "";
-  let periodEnd: string = "";
+  let periodStart = "";
+  let periodEnd = "";
 
-  Object.keys(entriesByPeriod).forEach((key, index) => {
-    const value = entriesByPeriod[key];
+  Object.keys(entryCountByPeriod).forEach((key, index) => {
+    const value = entryCountByPeriod[key];
 
     if (value >= frequency) {
       if (periodStart === "") {
@@ -191,7 +203,7 @@ function findConsecutivePeriods(
     }
 
     if (
-      index === Object.keys(entriesByPeriod).length - 1 &&
+      index === Object.keys(entryCountByPeriod).length - 1 &&
       !!periodStart &&
       !!periodEnd
     ) {
@@ -206,6 +218,13 @@ function findConsecutivePeriods(
   return consecutivePeriods;
 }
 
+/**
+ * Calculates the duration between two periods based on the provided period type.
+ * @param periodStart The start date or value of the period.
+ * @param periodEnd The end date or value of the period.
+ * @param period The type of period ("day", "week", "month", "year").
+ * @returns The duration between the periods in the specified period type.
+ */
 function calculateDuration(
   periodStart: string,
   periodEnd: string,
@@ -218,16 +237,19 @@ function calculateDuration(
 
   switch (period) {
     case "day":
+      // format: 2022-12-17
       start = new Date(periodStart).getTime();
       end = new Date(periodEnd).getTime();
       return Math.floor((end - start) / (1000 * 3600 * 24)) + 1;
 
     case "week":
+      // format: 2019-Wk27
       start = parseInt(periodStart.slice(periodStart.indexOf("Wk") + 2));
       end = parseInt(periodEnd.slice(periodEnd.indexOf("Wk") + 2));
       return Math.abs(end - start) + 1;
 
     case "month":
+      // format: 2020-07
       const startYear = parseInt(
         periodStart.slice(0, periodStart.indexOf("-"))
       );
@@ -242,6 +264,7 @@ function calculateDuration(
       return monthsPerYear * yearDiff + monthDiff + 1;
 
     case "year":
+      // format: 2018
       start = parseInt(periodStart);
       end = parseInt(periodEnd);
       return Math.abs(end - start) + 1;
@@ -251,48 +274,72 @@ function calculateDuration(
   }
 }
 
-function calculateEntriesPerPeriod(
+/**
+ * Calculates the entry count by period based on an array of logs and a specified period.
+ * @param logs An array of logs.
+ * @param period The period to calculate the entry count for.
+ * @returns An object containing the entry count for each period.
+ */
+function calculateEntryCountByPeriod(
   logs: Log[],
   period: string
 ): { [period: string]: number } {
-  const entriesPerPeriod: { [period: string]: number } = {};
+  const entryCountByPeriod: { [period: string]: number } = {};
 
-  if (logs.length === 0) return entriesPerPeriod;
+  // Return an empty object if the logs array is empty
+  if (logs.length === 0) return entryCountByPeriod;
 
+  // Iterate through the logs array
   logs.forEach((log) => {
+    // Extract the date from the log createdAt property
     const date = log.createdAt.toISOString().split("T")[0];
+
+    // Get the period key based on the date and specified period
     const periodKey = getPeriodFromDate(date, period);
 
-    if (entriesPerPeriod[periodKey]) {
-      entriesPerPeriod[periodKey]++;
+    // Increment the count for the period key if it exists, otherwise set it to 1
+    if (entryCountByPeriod[periodKey]) {
+      entryCountByPeriod[periodKey]++;
     } else {
-      entriesPerPeriod[periodKey] = 1;
+      entryCountByPeriod[periodKey] = 1;
     }
   });
 
-  return entriesPerPeriod;
+  return entryCountByPeriod;
 }
 
+/**
+ * Determines the period key based on a given date and period.
+ * @param date The date to determine the period key from.
+ * @param period The period for which to determine the key.
+ * @returns The period key based on the date and period.
+ */
 function getPeriodFromDate(date: string, period: string): string {
   switch (period) {
     case "day":
-      const adjustedDate = new Date(date);
-      adjustedDate.setDate(adjustedDate.getDate() + 1);
+      // For daily period, return the input date as the period key
       return date;
-    // return adjustedDate.toISOString().split("T")[0];;
     case "week":
+      // For weekly period, calculate the week number and format the period key
       const weekNumber = getWeekNumber(new Date(date));
       return `${new Date(date).getFullYear()}-Wk${weekNumber + 1}`;
     case "month":
+      // For monthly period, extract the year and month from the input date
       const [year, month] = date.split("-");
       return `${year}-${month}`;
     case "year":
+      // For yearly period, extract the year from the input date
       return date.split("-")[0];
     default:
       return "";
   }
 }
 
+/**
+ * Calculates the week number of a given date.
+ * @param date The date to calculate the week number from.
+ * @returns The week number of the provided date.
+ */
 function getWeekNumber(date: Date): number {
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
   const daysOffset = firstDayOfYear.getDay() - 1;
@@ -305,6 +352,16 @@ function getWeekNumber(date: Date): number {
   return Math.floor(diff / (7 * 24 * 60 * 60 * 1000)) + 1;
 }
 
+/**
+ * Determines if a streak is currently active based on an array of consecutive periods and a specified period.
+ * @param consecutivesArray An array of consecutive periods with start and end dates and durations.
+ *                          Each object in the array should have the following properties:
+ *                          - periodStart: The start date of the period.
+ *                          - periodEnd: The end date of the period.
+ *                          - duration: The duration of the period.
+ * @param period The period to check for the streak.
+ * @returns An object containing the status of the streak (active or not) and the current streak duration.
+ */
 function isStreakActive(
   consecutivesArray: {
     periodStart: string;
@@ -334,6 +391,7 @@ function isStreakActive(
       streakActive = true;
       currentStreak = consecutivesArray[length - 1].duration;
     }
+
     return { streakActive, currentStreak };
   } catch (err) {
     console.log(err);
@@ -341,6 +399,17 @@ function isStreakActive(
   }
 }
 
+/**
+ * Calculates the score based on consecutive periods, the specified period, and the total number of entries.
+ * @param consecutivePeriods An array of consecutive periods with start and end dates and durations.
+ *                           Each object in the array should have the following properties:
+ *                           - periodStart: The start date of the period.
+ *                           - periodEnd: The end date of the period.
+ *                           - duration: The duration of the period.
+ * @param period The period used for calculating the score.
+ * @param totalEntries The total number of entries.
+ * @returns The calculated score.
+ */
 function calculateScore(
   consecutivePeriods: {
     periodStart: string;
@@ -353,16 +422,18 @@ function calculateScore(
   let baseRate = getBaseRate(period);
 
   const streaksBonus = consecutivePeriods.reduce((score, consecutivePeriod) => {
-    return (
-      score + // Accumulated score
-      baseRate * getMultiplier(consecutivePeriod.duration, period) // Bonus for streaks
-    );
+    return score + baseRate * getMultiplier(consecutivePeriod.duration, period);
   }, 0);
 
   const totalScore = baseRate * totalEntries + streaksBonus;
   return totalScore;
 }
 
+/**
+ * Retrieves the base rate value based on the specified period.
+ * @param period The period for which the base rate is retrieved.
+ * @returns The base rate value.
+ */
 function getBaseRate(period: string): number {
   switch (period) {
     case "day":
@@ -378,6 +449,13 @@ function getBaseRate(period: string): number {
   }
 }
 
+/**
+ * Calculates the multiplier based on the current streak, period, and an optional clamp value.
+ * @param currentStreak The current streak duration.
+ * @param period The period used for calculating the multiplier.
+ * @param clamp The maximum value the multiplier can reach (optional, default is 25).
+ * @returns The calculated multiplier.
+ */
 function getMultiplier(
   currentStreak: number,
   period: string,

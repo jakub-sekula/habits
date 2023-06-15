@@ -45,19 +45,6 @@ export async function registerUser(
   }
 }
 
-export async function logoutUser(
-  req: Request,
-  res: Response,
-  next: NextFunction
-) {
-  req.logout(function (err) {
-    if (err) {
-      return next(err);
-    }
-    res.redirect("/");
-  });
-}
-
 export async function loginUser(
   req: Request,
   res: Response,
