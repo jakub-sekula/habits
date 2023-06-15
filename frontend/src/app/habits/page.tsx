@@ -34,11 +34,35 @@ export default function Page() {
       console.log(token);
 
       const resJson = (await res.json()) as any;
+      let habits: any[] = resJson.habits;
+      let { currentPage, totalPages } = resJson.metadata;
+      console.log({ habits, currentPage, totalPages });
+      if (totalPages != 1) {
+        while (currentPage <= totalPages) {
+          const nextPageRes = await fetch(
+            `http://localhost:3000/habits?page=${currentPage + 1}`,
+            {
+              headers,
+            }
+          );
+
+          if (nextPageRes.ok) {
+            const nextPageJson = await nextPageRes.json();
+            console.log(nextPageJson);
+            habits = [...habits, ...nextPageJson.habits];
+            currentPage = nextPageJson.metadata.currentPage;
+          } else {
+            break;
+          }
+        }
+      }
       setHabits(
-        resJson.habits.filter((habit: Habit) => !habit.archived).sort(
-          (a: any, b: any) =>
-            new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
-        )
+        habits
+          .filter((habit: Habit) => !habit.archived)
+          .sort(
+            (a: any, b: any) =>
+              new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          )
       );
       setLoading(false);
     }
@@ -54,20 +78,23 @@ export default function Page() {
 
   return (
     <>
-      <div
-        className={clsx(
-          "fixed inset-0 z-50 bg-white/50 backdrop-blur-md flex items-center justify-center",
-          !formOpen && "hidden"
-        )}
-      >
-        <HabitForm
-          setOpen={setFormOpen}
-          setHabits={setHabits}
+      {formOpen ? (
+        <div
           className={clsx(
-            "mb-4 bg-white w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
+            "fixed inset-0 z-50 bg-white/50 backdrop-blur-md flex items-center justify-center",
+            !formOpen && "hidden"
           )}
-        />
-      </div>
+        >
+          <HabitForm
+            setOpen={setFormOpen}
+            setHabits={setHabits}
+            className={clsx(
+              "mb-4 bg-white w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
+            )}
+          />
+        </div>
+      ) : null}
+
       <div className="w-full max-w-4xl text-zinc-800">
         <h1 className="text-4xl font-serif font-bold">Today&apos;s tasks</h1>
         <p className="text-zinc-500">

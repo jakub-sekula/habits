@@ -8,7 +8,7 @@ import { Habit } from "@/lib/types";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
 type FormData = {
-  image: string;
+  image?: string;
   name: string;
   color: string;
   frequency: number;
@@ -36,16 +36,23 @@ export default function HabitForm({
       }
     };
 
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
 
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, [setOpen]);
 
   const [color, setColor] = useState<string>("red");
-  const { register, handleSubmit, reset } = useForm<FormData>();
+  const { register, handleSubmit, reset, getValues } = useForm<FormData>({
+    defaultValues: {
+      weekdays: [],
+      color: "blue",
+    },
+  });
   const { currentUser } = useAuth() as AuthContextType;
+  console.log(color, getValues("color"));
+
   const onSubmit = handleSubmit(async (data) => {
     console.log(data.color);
     try {
@@ -59,25 +66,29 @@ export default function HabitForm({
         }),
         body: JSON.stringify(data),
       });
+      console.log(data);
       const habit = await res.json();
       console.log("returned habit: ", habit);
       setHabits((prev: Habit[]) => [habit, ...prev]);
-      reset()
-      return setOpen(false) 
+      reset();
+      return setOpen(false);
     } catch (e) {
       console.log(e);
     }
   });
 
   return (
-    <Form.Root onSubmit={onSubmit} className={clsx(className, styles.shadow)} ref={ref}>
+    <Form.Root
+      onSubmit={onSubmit}
+      className={clsx(className, styles.shadow)}
+      ref={ref}
+    >
       <div
         className={clsx(
           "w-full h-full relative flex items-center p-6 gap-4",
           colors[color]
         )}
       >
-        
         <Form.Field className="relative" name="title">
           {/* <Form.Label>Emoji</Form.Label> */}
           <Form.Control asChild>
@@ -102,7 +113,7 @@ export default function HabitForm({
           </Form.Control>
         </Form.Field>
         <button
-        className="absolute top-4 right-4"
+          className="absolute top-4 right-4"
           onClick={() => {
             setOpen(false);
           }}
@@ -168,7 +179,7 @@ export default function HabitForm({
                 setColor={setColor}
                 value={key}
                 register={register}
-                checked={color===key}
+                checked={color === key}
               />
             ))}
           </div>
