@@ -7,6 +7,7 @@ import cors from "cors";
 import authRouter from "./api/auth/routes";
 import usersRouter from "./api/users/routes";
 import habitsRouter from "./api/habits/routes";
+import logsRouter from "./api/logs/routes";
 
 const app = express();
 
@@ -21,6 +22,7 @@ app.use(
 app.use("/auth", VerifyToken, authRouter);
 app.use("/users", VerifyToken, usersRouter);
 app.use("/habits", VerifyToken, habitsRouter);
+app.use("/logs", VerifyToken, logsRouter);
 
 app.get("/", VerifyToken, async (req, res) => {
   res.json({
@@ -34,9 +36,5 @@ app.use(errorConverter);
 
 // handle error
 app.use(errorHandler);
-
-app.use((req, res, next) => {
-  res.status(404).send();
-});
 
 export default app;
