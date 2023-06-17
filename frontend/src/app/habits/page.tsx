@@ -1,18 +1,21 @@
 "use client";
 import React, { useEffect, useState } from "react";
 import { AuthContextType, useAuth } from "@/components/AuthContext";
-
+import LogChart from "@/components/LineChart";
 import { Habit } from "@/lib/types";
 import HabitCard from "@/components/HabitCard";
 import HabitForm from "@/components/HabitForm";
 import clsx from "clsx";
+import HabitDetails from "@/components/HabitDetails";
 
 export default function Page() {
   const { currentUser } = useAuth() as AuthContextType;
   const [habits, setHabits] = useState<Habit[] | null>(null);
-  const [formOpen, setFormOpen] = useState<boolean>(false);
+  const [modalOpen, setModalOpen] = useState<boolean>(false);
+  const [showDetails, setShowDetails] = useState<boolean>(false);
+  const [selected, setSelected] = useState<Habit | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
-
+  // habit fetching
   useEffect(() => {
     async function getHabits() {
       setLoading(true);
@@ -34,9 +37,8 @@ export default function Page() {
       console.log(token);
 
       const resJson = (await res.json()) as any;
-      let habits: any[] = resJson.habits;
+      let habits: Habit[] = resJson.habits;
       let { currentPage, totalPages } = resJson.metadata;
-      console.log({ habits, currentPage, totalPages });
       if (totalPages != 1) {
         while (currentPage <= totalPages) {
           const nextPageRes = await fetch(
@@ -48,7 +50,6 @@ export default function Page() {
 
           if (nextPageRes.ok) {
             const nextPageJson = await nextPageRes.json();
-            console.log(nextPageJson);
             habits = [...habits, ...nextPageJson.habits];
             currentPage = nextPageJson.metadata.currentPage;
           } else {
@@ -70,24 +71,39 @@ export default function Page() {
     getHabits();
   }, [currentUser]);
 
-  if (loading) return "Loading";
-
   const totalScore = habits?.reduce((score, habit) => {
     return score + habit.score;
   }, 0) as number;
 
   return (
     <>
-      {formOpen ? (
+      {modalOpen ? (
         <div
           className={clsx(
             "fixed inset-0 z-50 bg-white/50 backdrop-blur-md flex items-center justify-center",
-            !formOpen && "hidden"
+            !modalOpen && "hidden"
           )}
         >
           <HabitForm
-            setOpen={setFormOpen}
+            setOpen={setModalOpen}
             setHabits={setHabits}
+            className={clsx(
+              "mb-4 bg-white w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
+            )}
+          />
+        </div>
+      ) : null}
+      {selected && showDetails ? (
+        <div
+          className={clsx(
+            "fixed inset-0 z-50 bg-white/50 backdrop-blur-md flex items-center justify-center",
+            !showDetails && "hidden"
+          )}
+        >
+          <HabitDetails
+            setOpen={setModalOpen}
+            setShowDetails={setShowDetails}
+            habit={selected}
             className={clsx(
               "mb-4 bg-white w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
             )}
@@ -98,26 +114,49 @@ export default function Page() {
       <div className="w-full max-w-4xl text-zinc-800">
         <h1 className="text-4xl font-serif font-bold">Today&apos;s tasks</h1>
         <p className="text-zinc-500">
-          You have {habits?.length} tasks left for today
+          You have{" "}
+          {habits?.filter((habit) => !habit.completed_for_period).length} tasks
+          left for today
         </p>
         <p className="text-zinc-500">Total score {Math.floor(totalScore)} 🏆</p>
+        <p className="text-zinc-500">show deets {showDetails} 🏆</p>
+        <p className="text-zinc-500">
+          Selected habit: {selected ? selected.id : null}
+        </p>
       </div>
-      <div className="w-full max-w-4xl grid gap-4 grid-cols-2">
-        {!formOpen ? (
+      <div className="w-full max-w-4xl grid gap-4 md:grid-cols-2">
+        {!modalOpen ? (
           <button
             className="button self-end justify-self-end  col-span-full w-fit"
             onClick={() => {
-              setFormOpen(true);
+              setModalOpen(true);
             }}
           >
             Add habit
           </button>
         ) : null}
+
         {!!habits
           ? habits?.map((habit) => (
-              <HabitCard key={habit.id} habit={habit} setHabits={setHabits} />
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                setHabits={setHabits}
+                setShowDetails={setShowDetails}
+                setSelected={setSelected}
+              />
             ))
-          : "no habits"}
+          : null}
+        {loading
+          ? new Array(10).fill("").map((habit, index) => {
+              return (
+                <div
+                  key={index}
+                  className={`w-full bg-slate-50 h-[12.625rem] animate-pulse animato p-4 flex flex-col gap-8 rounded-lg`}
+                ></div>
+              );
+            })
+          : null}
       </div>
     </>
   );

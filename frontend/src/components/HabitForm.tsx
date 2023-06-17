@@ -7,6 +7,8 @@ import { AuthContextType, useAuth } from "./AuthContext";
 import { Habit } from "@/lib/types";
 import { FormEvent, useEffect, useRef, useState } from "react";
 
+import useClickOutside from "@/lib/useClickOutside";
+
 type FormData = {
   image?: string;
   name: string;
@@ -27,22 +29,24 @@ export default function HabitForm({
   setHabits,
   setOpen,
 }: ChildComponentProps) {
-  const ref = useRef<HTMLFormElement>(null);
+  // const ref = useRef<HTMLFormElement>(null);
 
-  useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (ref.current && !ref.current.contains(event.target as Node)) {
-        setOpen(false);
-      }
-    };
+  // useEffect(() => {
+  //   const handleClickOutside = (event: MouseEvent) => {
+  //     if (ref.current && !ref.current.contains(event.target as Node)) {
+  //       setOpen(false);
+  //     }
+  //   };
 
-    document.addEventListener("mousedown", handleClickOutside);
+  //   document.addEventListener("mousedown", handleClickOutside);
 
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [setOpen]);
+  //   return () => {
+  //     document.removeEventListener("mousedown", handleClickOutside);
+  //   };
+  // }, [setOpen]);
 
+  const ref = useClickOutside<HTMLFormElement>(() => setOpen(false));
+  
   const [color, setColor] = useState<string>("red");
   const { register, handleSubmit, reset, getValues } = useForm<FormData>({
     defaultValues: {

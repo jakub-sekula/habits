@@ -20,6 +20,30 @@
   @apply min-w-fit h-10 flex gap-4 justify-center items-center py-2 px-4 border border-transparent text-sm font-medium rounded-md text-white bg-sky-800 dark:bg-sky-800 hover:bg-sky-900 focus:shadow-[0_0_0_2px] focus:shadow-black;
 }
 
-.hidden-sranie {
-  display: none;
+.blue-gradient {
+  background: linear-gradient(246.32deg, #72fde4 0%, #72cbfd 100%);
+}
+
+.green-gradient {
+  background: linear-gradient(246.32deg, #c4ea75 0%, #79ec93 100%);
+}
+
+.orange-gradient {
+  background: linear-gradient(246.32deg, #fd7272 0%, #fdb572 100%);
+}
+
+.red-gradient {
+  background: linear-gradient(246.32deg, #FD3E83 0%, #FD1669 100%);
+}
+
+.yellow-gradient {
+  background: linear-gradient(246.32deg, #fdbd72 0%, #fde772 100%);
+}
+
+.pink-gradient {
+  background: linear-gradient(246.32deg, #d172fd 0%, #fd72bd 100%);
+}
+
+.violet-gradient {
+  background: linear-gradient(246.32deg, #72aafd 0%, #8e72fd 100%);
 }
