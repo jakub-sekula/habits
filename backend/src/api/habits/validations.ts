@@ -34,40 +34,43 @@ const updateHabit = {
   }),
 };
 
-const logHabit = {
-  body: Joi.object().keys({
-    event: Joi.string().allow("done", "skipped").optional(),
-  }),
-};
-
 const getHabit = {
   params: Joi.object().keys({
-    id: Joi.string()
-  })
+    id: Joi.string(),
+  }),
 };
 
 const getHabits = {
   query: Joi.object().keys({
-    period: Joi.string().valid("day","month", "year", "week"),
+    period: Joi.string().valid("day", "month", "year", "week"),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
-    page: Joi.number().integer()
-  })
+    page: Joi.number().integer(),
+  }),
+};
+const deleteHabit = {
+  params: Joi.object().keys({
+    id: Joi.string(),
+  }),
+};
+
+const logHabit = {
+  query: Joi.object().keys({
+    habitId: Joi.string().required(),
+  }),
+  body: Joi.object().keys({
+    event: Joi.string().required(),
+  }),
 };
 
 const getLogs = {
   query: Joi.object().keys({
+    habitId: Joi.string().required(),
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
-    page: Joi.number().integer()
-  })
-}
-
-const deleteHabit = {
-  params: Joi.object().keys({
-    id: Joi.string()
-  })
-}
+    page: Joi.number().integer(),
+  }),
+};
 
 export default {
   createHabit,
@@ -76,5 +79,5 @@ export default {
   getHabit,
   getHabits,
   getLogs,
-  deleteHabit
+  deleteHabit,
 };

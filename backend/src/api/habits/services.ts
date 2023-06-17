@@ -1,4 +1,4 @@
-import { PrismaClient, Habit, Log } from "@prisma/client";
+import { PrismaClient, Habit } from "@prisma/client";
 const prisma = new PrismaClient();
 
 interface PaginationMetadata {
@@ -38,6 +38,8 @@ const queryHabits = async <Key extends keyof Habit>(
     "archived",
     "userId",
     "type",
+    "score",
+    "longest_streak"
   ] as Key[]
 ): Promise<{ habits: Pick<Habit, Key>[]; metadata: PaginationMetadata }> => {
   const page = options.page ?? 1;
@@ -63,46 +65,9 @@ const queryHabits = async <Key extends keyof Habit>(
     itemsPerPage: limit,
   };
 
-  return {  metadata, habits: habits as Pick<Habit, Key>[], };
-};
-
-const queryLogs = async <Key extends keyof Log>(
-  filter: object,
-  options: {
-    limit?: number;
-    page?: number;
-    sortBy?: string;
-    sortType?: "asc" | "desc";
-  },
-  keys: Key[] = ["id", "event", "habitId", "createdAt"] as Key[]
-): Promise<{ logs: Pick<Log, Key>[]; metadata: PaginationMetadata }> => {
-  const page = options.page ?? 1;
-  const limit = options.limit ?? 100;
-  const sortBy = options.sortBy;
-  const sortType = options.sortType ?? "desc";
-  const [logs, totalCount] = await Promise.all([
-    prisma.log.findMany({
-      where: filter,
-      select: keys.reduce((obj, k) => ({ ...obj, [k]: true }), {}),
-      skip: (page - 1) * limit,
-      take: limit,
-      orderBy: sortBy ? { [sortBy]: sortType } : undefined,
-    }),
-    prisma.log.count({ where: filter }),
-  ]);
-  const totalPages = Math.ceil(totalCount / limit);
-
-  const metadata: PaginationMetadata = {
-    currentPage: page,
-    totalPages,
-    totalItems: totalCount,
-    itemsPerPage: limit,
-  };
-
-  return { metadata, logs: logs as Pick<Log, Key>[] };
+  return { metadata, habits: habits as Pick<Habit, Key>[] };
 };
 
 export default {
   queryHabits,
-  queryLogs,
 };
