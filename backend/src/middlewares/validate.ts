@@ -1,6 +1,6 @@
 import httpStatus from "http-status";
 import { NextFunction, Request, Response } from "express";
-import { pick, ApiError } from "@/lib/utils";
+import { pick, ApiError } from "@utils";
 import Joi from "joi";
 
 const validate =
