@@ -15,26 +15,26 @@ model User {
     createdAt DateTime @default(now())
     habits    Habit[]
     logs      Log[]
-    points    Points[]
 }
 
 model Habit {
-    id        String   @id @default(cuid())
-    name      String   @default("My habit")
-    frequency Int      @default(1)
-    period    String   @default("day")
-    weekdays  String?
-    color     String   @default("blue")
-    image     String?  @default("💪🏻")
-    reminder  Boolean  @default(false)
-    createdAt DateTime @default(now())
-    archived  Boolean  @default(false)
+    id             String   @id @default(cuid())
+    name           String   @default("My habit")
+    type           String   @default("habit")
+    frequency      Int      @default(1)
+    period         String   @default("day")
+    weekdays       String?
+    color          String   @default("blue")
+    image          String?  @default("💪🏻")
+    reminder       Boolean  @default(false)
+    createdAt      DateTime @default(now())
+    archived       Boolean  @default(false)
+    score          Float    @default(0)
+    longest_streak Int      @default(0)
 
     // Relations
     user   User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
     userId String
-
-    type String @default("habit")
 
     logs Log[]
 }
@@ -44,6 +44,10 @@ model Log {
     event     String   @default("done")
     createdAt DateTime @default(now())
 
+    points_added Float @default(0)
+    habit_score  Float @default(0)
+    total_score  Float @default(0)
+
     // Relations
     habit   Habit?  @relation(fields: [habitId], references: [id], onDelete: Cascade)
     habitId String?
@@ -51,15 +55,4 @@ model Log {
     user   User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
     userId String
 
-    points Points[]
-}
-
-model Points {
-    id           String @id @default(cuid())
-    log          Log    @relation(fields: [logId], references: [id], onDelete: Cascade)
-    logId        String
-    points_added Float  @default(0)
-    total_score  Float  @default(0)
-    user         User   @relation(fields: [userId], references: [uid], onDelete: Cascade)
-    userId       String
 }

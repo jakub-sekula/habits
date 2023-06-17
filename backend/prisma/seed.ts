@@ -3,13 +3,19 @@ import { Habit } from "@prisma/client";
 // Import the Prisma Client
 const { PrismaClient } = require("@prisma/client");
 
+import { default as habitUtils } from "@/api/habits/utils";
+import { default as streaks } from "@/lib/streaks";
+
 // Create an instance of the Prisma Client
 const prisma = new PrismaClient();
 
 // Seed function
 export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
+  console.time("Seed time"); // Start the timer
   // Delete all existing habits and logs
   await prisma.habit.deleteMany({ where: { userId } });
+
+  let totalScore = 0
 
   // Helper function to generate logs
   async function generateLogs(habit: Habit, requiredLogs: number) {
@@ -52,24 +58,73 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
         if (isMissedLog && consecutiveMissedLogs <= 3) {
           consecutiveMissedLogs++;
         } else {
+          let streak = 0;
           consecutiveMissedLogs = 0;
-          await prisma.log.create({
+          const { score: scoreBefore } = await habitUtils.getHabitDetails(
+            habit
+          );
+
+          let log = await prisma.log.create({
             data: {
               event: "done",
               createdAt: logDate,
               habit: {
-                connect: {id: habit.id}
+                connect: { id: habit.id },
               },
               user: {
-                connect: {uid: userId}
-              }
-              // habitId: habit.id,
-              // userId: userId,
+                connect: { uid: userId },
+              },
+            },
+          });
+
+          const isStreakActive = await streaks.isStreakActive(habit,logDate);
+
+          if (isStreakActive) streak++;
+
+          const multiplier = streaks.getMultiplier(streak, habit.period);
+          const baseRate = streaks.getBaseRate(habit.period);
+
+          const streakBonus = isStreakActive ? streak * baseRate * multiplier : 0;
+          // const pointsAdded = baseRate + streakBonus;
+          // const newHabitScore = habit.score + pointsAdded;
+          const { score: scoreAfter } = await habitUtils.getHabitDetails(habit);
+          const pointsAdded =scoreAfter-scoreBefore;
+          // totalScore += pointsAdded
+          
+          // await prisma.habit.update({
+            //   where: { id: habit.id },
+            //   data: {
+              //     score: scoreAfter,
+              //   },
+              // });
+              await prisma.habit.update({
+                where: { id: habit.id },
+                data: {
+                  score: scoreAfter,
+                },
+              });
+              
+              // const pointsAdded = scoreAfter - scoreBefore;
+              
+              const totalScore = await prisma.habit.aggregate({
+                _sum: { score: true },
+                where: { userId },
+              });
+              
+              console.log(totalScore)
+              
+          log = await prisma.log.update({
+            where: { id: log.id },
+            data: {
+              habit_score: scoreAfter,
+              total_score: totalScore._sum.score,
+              points_added: pointsAdded,
             },
           });
         }
       }
     }
+    return totalScore
   }
 
   // Create habits
@@ -139,9 +194,19 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
     }
 
     await generateLogs(createdHabit, requiredLogs);
+
+    const habitWithDetails = await habitUtils.getHabitDetails(createdHabit);
+
+    await prisma.habit.update({
+      where: { id: habitWithDetails.id },
+      data: {
+        score: habitWithDetails.score,
+      },
+    });
   }
 
   console.log("Seed completed successfully!");
+  console.timeEnd("Seed time");
 }
 
 // Run the seed function
