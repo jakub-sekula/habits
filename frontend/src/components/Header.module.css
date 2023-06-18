@@ -9,6 +9,7 @@
 
 .header {
   font-family: "PT Serif";
-  max-width: 1400px;
   margin: 0 auto;
+  background-color: white;
+  @apply border-b 
 }

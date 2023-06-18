@@ -3,6 +3,7 @@ import { AuthContextType, useAuth } from "./AuthContext";
 import clsx from "clsx";
 import { useState } from "react";
 
+
 export default function HabitCard({
   habit,
   setHabits,
@@ -55,29 +56,28 @@ export default function HabitCard({
       console.log(e);
     }
   }
-
+console.log(pressed)
   return (
     <div
+    onMouseDown={() => {
+      setPressed(true);
+    }}
+    onMouseUp={() => {
+      setPressed(false);
+    }}
       onClick={() => {
         if (typeof setSelected === "function") {
           setSelected(habit);
         }
         if (typeof setShowDetails === "function") {
-          console.log("imma show you")
           setShowDetails(true);
         }
       }}
-      onMouseDown={() => {
-        setPressed(true);
-      }}
-      onMouseUp={() => {
-        setPressed(false);
-      }}
       className={clsx(
-        !!color && colors?.[color] ? colors[color] : "bg-red-200",
-        // habit.completed_for_period ? 'opacity-50' : null,
-        `w-full p-4 flex flex-col gap-8 rounded-lg hover:scale-[101%] transition-all duration-75`,
-        pressed ? "hover:scale-[100%]" : null
+        !!color && colors?.[color] ? colors[color] : null,
+        completed_for_period ? 'opacity-75' : null,
+        `w-full p-4 flex flex-col gap-8 rounded-lg hover:scale-[101%] transition-all duration-75 shadow-inner select-none`,
+        pressed ? "hover:scale-[98%]" : null
       )}
     >
       <div className="flex gap-4">
@@ -110,11 +110,12 @@ export default function HabitCard({
 }
 
 const colors: { [key: string]: string } = {
-  red: "red-gradient",
-  orange: "orange-gradient",
-  yellow: "yellow-gradient",
-  green: "green-gradient",
-  blue: "blue-gradient",
-  indigo: "indigo-gradient",
-  violet: "violet-gradient",
+  red: "red-gradient ",
+  orange: "orange-gradient ",
+  yellow: "yellow-gradient ",
+  green: "green-gradient ",
+  blue: "blue-gradient ",
+  indigo: "indigo-gradient ",
+  violet: "violet-gradient ",
+  pink: "pink-gradient"
 };

@@ -15,6 +15,7 @@ export default function Page() {
   const [showDetails, setShowDetails] = useState<boolean>(false);
   const [selected, setSelected] = useState<Habit | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
+
   // habit fetching
   useEffect(() => {
     async function getHabits() {
@@ -71,6 +72,18 @@ export default function Page() {
     getHabits();
   }, [currentUser]);
 
+  habits?.sort((a, b) => {
+    if (a.completed_for_period && !b.completed_for_period) {
+        return 1; // a comes after b
+    } else if (!a.completed_for_period && b.completed_for_period) {
+        return -1; // a comes before b
+    } else {
+        // Sort alphabetically when completed status is the same
+        return a.name.localeCompare(b.name);
+    }
+});
+
+
   const totalScore = habits?.reduce((score, habit) => {
     return score + habit.score;
   }, 0) as number;
@@ -96,16 +109,16 @@ export default function Page() {
       {selected && showDetails ? (
         <div
           className={clsx(
-            "fixed inset-0 z-50 bg-white/50 backdrop-blur-md flex items-center justify-center",
+            "fixed inset-0  z-50 bg-white/90 backdrop-blur-sm flex items-center justify-center",
             !showDetails && "hidden"
           )}
         >
           <HabitDetails
-            setOpen={setModalOpen}
+            setHabits={setHabits}
             setShowDetails={setShowDetails}
             habit={selected}
             className={clsx(
-              "mb-4 bg-white w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
+              " w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
             )}
           />
         </div>

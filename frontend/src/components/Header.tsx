@@ -36,7 +36,7 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <NavigationMenu.Root className="w-full h-min relative">
-        <NavigationMenu.List className="flex w-full h-12">
+        <NavigationMenu.List className="flex w-full h-16">
           <NavigationMenu.Item className="flex-grow w-full text-xl font-bold items-center flex px-3">
             <Link aria-label="homepage" href="/">
               Habiti.co
@@ -56,7 +56,7 @@ export default function Header() {
 
           {currentUser ? (
             <NavigationMenu.Item className={"flex-grow w-full"}>
-              <div className="z-50 w-fit ml-auto relative">
+              <div className="z-50 w-fit h-full ml-auto relative">
                 <NavigationMenu.Trigger
                   className={clsx(
                     styles.navItem,
