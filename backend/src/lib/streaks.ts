@@ -14,6 +14,7 @@ export async function calculateStreaks(habit: Habit): Promise<{
   const logs = await prisma.log.findMany({
     where: {
       habitId: habit.id,
+      event: "done",
     },
     orderBy: {
       createdAt: "asc",
@@ -68,7 +69,10 @@ export async function calculateStreaks(habit: Habit): Promise<{
 }
 
 // Function to calculate logged count and total count for a habit in a given period
-export async function calculateCounts(habit: Habit, reference_time: Date = new Date()) {
+export async function calculateCounts(
+  habit: Habit,
+  reference_time: Date = new Date()
+) {
   if (!habit) {
     throw new Error("Habit not found");
   }
@@ -80,11 +84,7 @@ export async function calculateCounts(habit: Habit, reference_time: Date = new D
 
   switch (habit.period) {
     case "day":
-      startDate = new Date(
-        time.getFullYear(),
-        time.getMonth(),
-        time.getDate()
-      );
+      startDate = new Date(time.getFullYear(), time.getMonth(), time.getDate());
       endDate = new Date(
         time.getFullYear(),
         time.getMonth(),
@@ -92,17 +92,16 @@ export async function calculateCounts(habit: Habit, reference_time: Date = new D
       );
       break;
     case "week":
-      const firstDayOfWeek = time.getDate() - time.getDay() + 1;
-      startDate = new Date(
-        time.getFullYear(),
-        time.getMonth(),
-        firstDayOfWeek
-      );
+      const firstDayOfWeek = time.getDate() - time.getDay() ;
+      startDate = new Date(time.getFullYear(), time.getMonth(), firstDayOfWeek);
+      console.log("start date ", startDate)
       endDate = new Date(
         time.getFullYear(),
         time.getMonth(),
         firstDayOfWeek + 7
       );
+      console.log("end date ", endDate)
+
       break;
     case "month":
       startDate = new Date(time.getFullYear(), time.getMonth(), 1);
@@ -126,6 +125,8 @@ export async function calculateCounts(habit: Habit, reference_time: Date = new D
       },
     },
   });
+
+  console.log(loggedCount)
 
   return {
     loggedCount,
@@ -280,7 +281,7 @@ function calculateDuration(
  * @param period The period to calculate the entry count for.
  * @returns An object containing the entry count for each period.
  */
-function calculateEntryCountByPeriod(
+export function calculateEntryCountByPeriod(
   logs: Log[],
   period: string
 ): { [period: string]: number } {
