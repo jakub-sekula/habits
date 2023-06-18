@@ -24,6 +24,7 @@ const queryHabits = async <Key extends keyof Habit>(
     page?: number;
     sortBy?: string;
     sortType?: "asc" | "desc";
+    date?: Date
   },
   keys: Key[] = [
     "id",

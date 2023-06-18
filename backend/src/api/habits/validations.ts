@@ -38,6 +38,9 @@ const getHabit = {
   params: Joi.object().keys({
     id: Joi.string(),
   }),
+  query: Joi.object().keys({
+    date: Joi.date(),
+  }),
 };
 
 const getHabits = {
@@ -46,6 +49,7 @@ const getHabits = {
     sortBy: Joi.string(),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
+    date: Joi.date(),
   }),
 };
 const deleteHabit = {
@@ -54,30 +58,10 @@ const deleteHabit = {
   }),
 };
 
-const logHabit = {
-  query: Joi.object().keys({
-    habitId: Joi.string().required(),
-  }),
-  body: Joi.object().keys({
-    event: Joi.string().required(),
-  }),
-};
-
-const getLogs = {
-  query: Joi.object().keys({
-    habitId: Joi.string().required(),
-    sortBy: Joi.string(),
-    limit: Joi.number().integer(),
-    page: Joi.number().integer(),
-  }),
-};
-
 export default {
   createHabit,
   updateHabit,
-  logHabit,
   getHabit,
   getHabits,
-  getLogs,
   deleteHabit,
 };

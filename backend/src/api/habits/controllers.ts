@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import { default as habitServices } from "./services";
 import { pick } from "@utils";
 import { PrismaClient, Habit } from "@prisma/client";
-import {default as habitUtils} from "./utils"
+import { default as habitUtils } from "./utils";
 
 import { DecodedIdToken } from "firebase-admin/auth";
 
@@ -16,15 +16,14 @@ async function getAllHabits(req: Request, res: Response) {
   }; //pick(req.query, ['period']);
   const options = pick(req.query, ["sortBy", "limit", "page"]);
   const result = await habitServices.queryHabits(filter, options);
+
+  const date = req.query.date ? new Date(req.query.date as string) : undefined;
+
   const habitsWithDetails = await Promise.all(
     result.habits.map(async (habit) => {
-      return await habitUtils.getHabitDetails(habit);
+      return await habitUtils.getHabitDetails(habit, date);
     })
   );
-
-  const totalScore = habitsWithDetails.reduce((score, current) => {
-    return score + current.score;
-  }, 0);
 
   result.habits = habitsWithDetails;
   res.send(result);
@@ -48,7 +47,11 @@ async function getHabit(req: Request, res: Response) {
     if (!habit) return res.sendStatus(404);
     if (habit.userId != req.user?.uid) return res.sendStatus(403);
 
-    return res.status(200).json(await habitUtils.getHabitDetails(habit));
+    const date = req.query.date
+      ? new Date(req.query.date as string)
+      : undefined;
+
+    return res.status(200).json(await habitUtils.getHabitDetails(habit, date));
   } catch (err) {
     console.log(err);
     return res.status(500).send(`Error getting habit`);
