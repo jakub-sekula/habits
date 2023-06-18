@@ -20,7 +20,7 @@
 }
 
 .tab {
-  @apply w-full py-3 data-[state=active]:border-blue-500 border-transparent border-b-2 data-[state=active]:bg-blue-50;
+  @apply w-full py-3 data-[state=active]:border-blue-500 border-transparent border-b-2 data-[state=active]:bg-white border-neutral-200;
 }
 
 .tabBar {

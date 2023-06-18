@@ -20,7 +20,7 @@ import { useAuth, AuthContextType } from "@/components/AuthContext";
 import { synchronizeWithBackend } from "@/lib/utils";
 
 export default function Page() {
-  const { login, auth } = useAuth() as AuthContextType;
+  const { register, login, auth } = useAuth() as AuthContextType;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [open, setOpen] = useState(false);
@@ -119,7 +119,12 @@ export default function Page() {
                   </Form.Control>
                 </Form.Field>
                 <Form.Submit asChild>
-                  <button type="submit" className={"button"}>
+                  <button type="submit" onClick={async () => {
+                  await register(email,password);
+                  synchronizeWithBackend(auth);
+                  router.push("/profile");
+                }}
+                className={"button"}>
                     Log in
                   </button>
                 </Form.Submit>
