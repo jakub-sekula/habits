@@ -55,7 +55,7 @@ export default function HabitDetails({
       });
 
       const res = await fetch(
-        `http://localhost:3000/logs?habitId=${currentHabit.id}&limit=7&sortBy=createdAt`,
+        `http://api.habits.jakubsekula.com/logs?habitId=${currentHabit.id}&limit=7&sortBy=createdAt`,
         {
           headers,
         }
@@ -85,7 +85,7 @@ export default function HabitDetails({
       });
 
       const res = await fetch(
-        `http://localhost:3000/logs/last28days?habitId=${currentHabit.id}&limit=5000`,
+        `http://api.habits.jakubsekula.com/logs/last28days?habitId=${currentHabit.id}&limit=5000`,
         {
           headers,
         }
@@ -106,7 +106,7 @@ export default function HabitDetails({
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
       const res = await fetch(
-        `http://localhost:3000/logs?habitId=${currentHabit.id}`,
+        `http://api.habits.jakubsekula.com/logs?habitId=${currentHabit.id}`,
         {
           method: "POST",
           headers: new Headers({
@@ -137,7 +137,7 @@ export default function HabitDetails({
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
       const res = await fetch(
-        `http://localhost:3000/habits/${currentHabit.id}`,
+        `http://api.habits.jakubsekula.com/habits/${currentHabit.id}`,
         {
           method: "DELETE",
           headers: new Headers({
@@ -166,7 +166,7 @@ export default function HabitDetails({
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
       const res = await fetch(
-        `http://localhost:3000/habits/${currentHabit.id}`,
+        `http://api.habits.jakubsekula.com/habits/${currentHabit.id}`,
         {
           method: "PUT",
           headers: new Headers({

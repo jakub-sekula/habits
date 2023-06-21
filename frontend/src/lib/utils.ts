@@ -2,7 +2,7 @@ import { Auth } from "firebase/auth";
 
 export async function synchronizeWithBackend(auth: Auth) {
   const token = await auth.currentUser?.getIdToken();
-  const res = await fetch("http://localhost:3000/auth/login", {
+  const res = await fetch("http://api.habits.jakubsekula.com/auth/login", {
     method: "POST",
     headers: new Headers({
       Authorization: `Bearer ${token}`,
@@ -14,7 +14,8 @@ export async function synchronizeWithBackend(auth: Auth) {
 
 export function getInitials(str: string | null) {
   if (!str) return "A";
-  const pattern = /(?<=^|\s|-)\w/g;
-  const initials = str.match(pattern) || [];
-  return initials.join('');
+  const pattern = /(^|\s|-)(\w)/g;
+  const matches = str.match(pattern) || [];
+  const initials = matches.map((match) => match.charAt(match.length - 1));
+  return initials.join("");
 }

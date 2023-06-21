@@ -12,10 +12,16 @@ const prisma = new PrismaClient();
 // Seed function
 export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
   console.time("Seed time"); // Start the timer
+
+  const user = await prisma.user.findMany({ where: { uid: userId } });
+  if (!user.length) {
+    await prisma.user.create({ data: { uid: userId } });
+  }
+
   // Delete all existing habits and logs
   await prisma.habit.deleteMany({ where: { userId } });
 
-  let totalScore = 0
+  let totalScore = 0;
 
   // Helper function to generate logs
   async function generateLogs(habit: Habit, requiredLogs: number) {
@@ -77,42 +83,44 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
             },
           });
 
-          const isStreakActive = await streaks.isStreakActive(habit,logDate);
+          const isStreakActive = await streaks.isStreakActive(habit, logDate);
 
           if (isStreakActive) streak++;
 
           const multiplier = streaks.getMultiplier(streak, habit.period);
           const baseRate = streaks.getBaseRate(habit.period);
 
-          const streakBonus = isStreakActive ? streak * baseRate * multiplier : 0;
+          const streakBonus = isStreakActive
+            ? streak * baseRate * multiplier
+            : 0;
           // const pointsAdded = baseRate + streakBonus;
           // const newHabitScore = habit.score + pointsAdded;
           const { score: scoreAfter } = await habitUtils.getHabitDetails(habit);
-          const pointsAdded =scoreAfter-scoreBefore;
+          const pointsAdded = scoreAfter - scoreBefore;
           // totalScore += pointsAdded
-          
+
           // await prisma.habit.update({
-            //   where: { id: habit.id },
-            //   data: {
-              //     score: scoreAfter,
-              //   },
-              // });
-              await prisma.habit.update({
-                where: { id: habit.id },
-                data: {
-                  score: scoreAfter,
-                },
-              });
-              
-              // const pointsAdded = scoreAfter - scoreBefore;
-              
-              const totalScore = await prisma.habit.aggregate({
-                _sum: { score: true },
-                where: { userId },
-              });
-              
-              console.log(totalScore)
-              
+          //   where: { id: habit.id },
+          //   data: {
+          //     score: scoreAfter,
+          //   },
+          // });
+          await prisma.habit.update({
+            where: { id: habit.id },
+            data: {
+              score: scoreAfter,
+            },
+          });
+
+          // const pointsAdded = scoreAfter - scoreBefore;
+
+          const totalScore = await prisma.habit.aggregate({
+            _sum: { score: true },
+            where: { userId },
+          });
+
+          console.log(totalScore);
+
           log = await prisma.log.update({
             where: { id: log.id },
             data: {
@@ -124,7 +132,7 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
         }
       }
     }
-    return totalScore
+    return totalScore;
   }
 
   // Create habits
@@ -184,11 +192,11 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
     let requiredLogs = 0;
 
     if (habit.period === "day") {
-      requiredLogs = 90 * habit.frequency; // Generate logs for the past 90 days
+      requiredLogs = 30 * habit.frequency; // Generate logs for the past 90 days
     } else if (habit.period === "week") {
-      requiredLogs = 52 * habit.frequency; // Assuming 52 weeks in a year
+      requiredLogs = 6 * habit.frequency; // Assuming 52 weeks in a year
     } else if (habit.period === "month") {
-      requiredLogs = 12 * habit.frequency; // Assuming 12 months in a year
+      requiredLogs = 6 * habit.frequency; // Assuming 12 months in a year
     } else if (habit.period === "year") {
       requiredLogs = habit.frequency;
     }

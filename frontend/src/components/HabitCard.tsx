@@ -32,7 +32,7 @@ export default function HabitCard({
     try {
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
-      const res = await fetch(`http://localhost:3000/logs?habitId=${id}`, {
+      const res = await fetch(`http://api.habits.jakubsekula.com/logs?habitId=${id}`, {
         method: "POST",
         headers: new Headers({
           Authorization: `Bearer ${token}`,

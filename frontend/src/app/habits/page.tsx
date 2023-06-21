@@ -29,7 +29,7 @@ export default function Page() {
         Authorization: `Bearer ${token}`,
       });
 
-      const res = await fetch(`http://localhost:3000/habits`, {
+      const res = await fetch(`http://api.habits.jakubsekula.com/habits`, {
         headers,
       });
 
@@ -43,7 +43,7 @@ export default function Page() {
       if (totalPages != 1) {
         while (currentPage <= totalPages) {
           const nextPageRes = await fetch(
-            `http://localhost:3000/habits?page=${currentPage + 1}`,
+            `http://api.habits.jakubsekula.com/habits?page=${currentPage + 1}`,
             {
               headers,
             }
@@ -72,16 +72,16 @@ export default function Page() {
     getHabits();
   }, [currentUser]);
 
-  habits?.sort((a, b) => {
-    if (a.completed_for_period && !b.completed_for_period) {
-        return 1; // a comes after b
-    } else if (!a.completed_for_period && b.completed_for_period) {
-        return -1; // a comes before b
-    } else {
-        // Sort alphabetically when completed status is the same
-        return a.name.localeCompare(b.name);
-    }
-});
+//   habits?.sort((a, b) => {
+//     if (a.completed_for_period && !b.completed_for_period) {
+//         return 1; // a comes after b
+//     } else if (!a.completed_for_period && b.completed_for_period) {
+//         return -1; // a comes before b
+//     } else {
+//         // Sort alphabetically when completed status is the same
+//         return a.name.localeCompare(b.name);
+//     }
+// });
 
 
   const totalScore = habits?.reduce((score, habit) => {
@@ -137,7 +137,7 @@ export default function Page() {
           Selected habit: {selected ? selected.id : null}
         </p>
       </div>
-      <div className="w-full max-w-4xl grid gap-4 md:grid-cols-2">
+      <div className="w-full max-w-5xl grid gap-4 md:grid-cols-2">
         {!modalOpen ? (
           <button
             className="button self-end justify-self-end  col-span-full w-fit"
@@ -150,7 +150,29 @@ export default function Page() {
         ) : null}
 
         {!!habits
-          ? habits?.map((habit) => (
+          ? habits?.filter(habit => !habit.completed_for_period).map((habit) => (
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                setHabits={setHabits}
+                setShowDetails={setShowDetails}
+                setSelected={setSelected}
+              />
+            ))
+          : null}
+        {loading
+          ? new Array(10).fill("").map((habit, index) => {
+              return (
+                <div
+                  key={index}
+                  className={`w-full bg-slate-50 h-[12.625rem] animate-pulse animato p-4 flex flex-col gap-8 rounded-lg`}
+                ></div>
+              );
+            })
+          : null}
+          <div className="col-span-full">Completed for today</div>
+          {!!habits
+          ? habits?.filter(habit => habit.completed_for_period).map((habit) => (
               <HabitCard
                 key={habit.id}
                 habit={habit}

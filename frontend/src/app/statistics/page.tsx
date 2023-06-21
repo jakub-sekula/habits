@@ -21,7 +21,7 @@ export default function Page() {
         Authorization: `Bearer ${token}`,
       });
 
-      const res = await fetch(`http://localhost:3000/logs?limit=1000&sortBy=createdAt`, {
+      const res = await fetch(`http://api.habits.jakubsekula.com/logs?limit=1000&sortBy=createdAt`, {
         headers,
       });
 
@@ -35,7 +35,7 @@ export default function Page() {
       if (totalPages != 1) {
         while (currentPage < totalPages) {
           const nextPageRes = await fetch(
-            `http://localhost:3000/logs?page=${currentPage + 1}&limit=1000&sortBy=createdAt`,
+            `http://api.habits.jakubsekula.com/logs?page=${currentPage + 1}&limit=1000&sortBy=createdAt`,
             {
               headers,
             }

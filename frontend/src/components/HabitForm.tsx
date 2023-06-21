@@ -62,7 +62,7 @@ export default function HabitForm({
     try {
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
-      const res = await fetch("http://localhost:3000/habits", {
+      const res = await fetch("http://api.habits.jakubsekula.com/habits", {
         method: "POST",
         headers: new Headers({
           Authorization: `Bearer ${token}`,

@@ -14,7 +14,7 @@ const app = express();
 app.use(json());
 app.use(
   cors({
-    origin: ["http://localhost:3001"],
+    origin: ["http://localhost:3001", "http://habits.jakubsekula.com", "*"],
     optionsSuccessStatus: 200, // some legacy browsers (IE11, various SmartTVs) choke on 204
   })
 );

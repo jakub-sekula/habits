@@ -1,0 +1,26 @@
+version: "3.7"
+services:
+  backend:
+    build: ./backend
+    # volumes:
+
+
+  frontend:
+    depends_on:
+      - backend
+    build: ./frontend
+
+
+  nginx:
+    depends_on:
+      - backend
+      - frontend
+    build: ./nginx
+    # volumes:
+
+    # PRODUCTION
+      # - "./nginx/certificates/crux-local.crt:/etc/nginx/certificates/crux-local.crt"
+      # - "./nginx/certificates/crux-local.key:/etc/nginx/certificates/crux-local.key"
+    ports:
+      - "80:80"
+      - "443:443"

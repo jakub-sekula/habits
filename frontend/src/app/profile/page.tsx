@@ -12,7 +12,7 @@ export default function Home() {
       try {
         const token = currentUser && (await currentUser.getIdToken());
         if (!token) return;
-        const res = await fetch("http://localhost:3000/", {
+        const res = await fetch("http://api.habits.jakubsekula.com/", {
           headers: new Headers({
             Authorization: `Bearer ${token}`,
           }),

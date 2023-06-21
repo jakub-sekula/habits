@@ -92,7 +92,7 @@ export async function calculateCounts(
       );
       break;
     case "week":
-      const firstDayOfWeek = time.getDate() - time.getDay() ;
+      const firstDayOfWeek = time.getDate() - time.getDay() +1 ;
       startDate = new Date(time.getFullYear(), time.getMonth(), firstDayOfWeek);
       console.log("start date ", startDate)
       endDate = new Date(
@@ -323,7 +323,7 @@ function getPeriodFromDate(date: string, period: string): string {
     case "week":
       // For weekly period, calculate the week number and format the period key
       const weekNumber = getWeekNumber(new Date(date));
-      return `${new Date(date).getFullYear()}-Wk${weekNumber + 1}`;
+      return `${new Date(date).getFullYear()}-Wk${weekNumber}`;
     case "month":
       // For monthly period, extract the year and month from the input date
       const [year, month] = date.split("-");
