@@ -2,10 +2,17 @@
 import { useAuth, AuthContextType } from "@/components/AuthContext";
 import clsx from "clsx";
 import { GoogleAuthProvider, linkWithPopup } from "firebase/auth";
-import auth from "@/lib/auth";
 import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 export default function Home() {
-  const { currentUser, logout } = useAuth() as AuthContextType;
+  const { currentUser } = useAuth() as AuthContextType;
+
+  const router = useRouter();
+  useEffect(() => {
+    if (!currentUser) {
+      router.push("/login");
+    }
+  });
 
   useEffect(() => {
     const fetchData = async () => {
@@ -26,11 +33,24 @@ export default function Home() {
     fetchData();
   }, [currentUser]);
 
+  if (!currentUser) return null;
+
   return (
     <>
       Profile
-      {currentUser?.isAnonymous ?  <button onClick={()=>{linkWithPopup(currentUser, new GoogleAuthProvider())}} className={clsx("button")}>Link accounts</button> : null}
-      <pre className="max-w-3xl w-full break-words whitespace-break-spaces">{JSON.stringify(currentUser, null, 2)}</pre>
+      {currentUser?.isAnonymous ? (
+        <button
+          onClick={() => {
+            linkWithPopup(currentUser, new GoogleAuthProvider());
+          }}
+          className={clsx("button")}
+        >
+          Link accounts
+        </button>
+      ) : null}
+      <pre className="max-w-3xl w-full break-words whitespace-break-spaces">
+        {JSON.stringify(currentUser, null, 2)}
+      </pre>
     </>
   );
 }

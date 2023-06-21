@@ -7,6 +7,7 @@ import HabitCard from "@/components/HabitCard";
 import HabitForm from "@/components/HabitForm";
 import clsx from "clsx";
 import HabitDetails from "@/components/HabitDetails";
+import { useRouter } from "next/navigation";
 
 export default function Page() {
   const { currentUser } = useAuth() as AuthContextType;
@@ -16,6 +17,12 @@ export default function Page() {
   const [selected, setSelected] = useState<Habit | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
+  const router = useRouter();
+  useEffect(() => {
+    if (!loading && !currentUser) {
+      router.push("/login");
+    }
+  });
   // habit fetching
   useEffect(() => {
     async function getHabits() {
@@ -72,21 +79,22 @@ export default function Page() {
     getHabits();
   }, [currentUser]);
 
-//   habits?.sort((a, b) => {
-//     if (a.completed_for_period && !b.completed_for_period) {
-//         return 1; // a comes after b
-//     } else if (!a.completed_for_period && b.completed_for_period) {
-//         return -1; // a comes before b
-//     } else {
-//         // Sort alphabetically when completed status is the same
-//         return a.name.localeCompare(b.name);
-//     }
-// });
-
+  //   habits?.sort((a, b) => {
+  //     if (a.completed_for_period && !b.completed_for_period) {
+  //         return 1; // a comes after b
+  //     } else if (!a.completed_for_period && b.completed_for_period) {
+  //         return -1; // a comes before b
+  //     } else {
+  //         // Sort alphabetically when completed status is the same
+  //         return a.name.localeCompare(b.name);
+  //     }
+  // });
 
   const totalScore = habits?.reduce((score, habit) => {
     return score + habit.score;
   }, 0) as number;
+
+  if (!currentUser) return null;
 
   return (
     <>
@@ -150,15 +158,17 @@ export default function Page() {
         ) : null}
 
         {!!habits
-          ? habits?.filter(habit => !habit.completed_for_period).map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                setHabits={setHabits}
-                setShowDetails={setShowDetails}
-                setSelected={setSelected}
-              />
-            ))
+          ? habits
+              ?.filter((habit) => !habit.completed_for_period)
+              .map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  setHabits={setHabits}
+                  setShowDetails={setShowDetails}
+                  setSelected={setSelected}
+                />
+              ))
           : null}
         {loading
           ? new Array(10).fill("").map((habit, index) => {
@@ -170,17 +180,19 @@ export default function Page() {
               );
             })
           : null}
-          <div className="col-span-full">Completed for today</div>
-          {!!habits
-          ? habits?.filter(habit => habit.completed_for_period).map((habit) => (
-              <HabitCard
-                key={habit.id}
-                habit={habit}
-                setHabits={setHabits}
-                setShowDetails={setShowDetails}
-                setSelected={setSelected}
-              />
-            ))
+        <div className="col-span-full">Completed for today</div>
+        {!!habits
+          ? habits
+              ?.filter((habit) => habit.completed_for_period)
+              .map((habit) => (
+                <HabitCard
+                  key={habit.id}
+                  habit={habit}
+                  setHabits={setHabits}
+                  setShowDetails={setShowDetails}
+                  setSelected={setSelected}
+                />
+              ))
           : null}
         {loading
           ? new Array(10).fill("").map((habit, index) => {
