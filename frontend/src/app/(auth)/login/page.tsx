@@ -16,6 +16,7 @@ import * as Separator from "@radix-ui/react-separator";
 import { BsGoogle, BsGithub, BsFacebook } from "react-icons/bs";
 import { useAuth, AuthContextType } from "@/components/AuthContext";
 import { synchronizeWithBackend } from "@/lib/utils";
+import Link from "next/link";
 
 export default function Page() {
   const router = useRouter();
@@ -51,9 +52,9 @@ export default function Page() {
 
   return (
     <>
-      <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-[calc(100vh-4rem)] pt-16 bg-white flex justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
-          <h2 className="mt-4 text-3xl text-center tracking-tight font-light :">
+          <h2 className="text-3xl text-center tracking-tight font-light :">
             Sign in to your account
           </h2>
 
@@ -118,7 +119,7 @@ export default function Page() {
               className={styles.tabContainer}
             >
               {error ? <pre>{JSON.stringify(error, null, 2)}</pre> : null}
-              <Form.Root onSubmit={handleFormSubmit}>
+              <Form.Root onSubmit={handleFormSubmit} className="flex flex-col gap-4">
                 <Form.Field className="relative" name="email">
                   <div className="flex items-baseline justify-between">
                     <Form.Label className={clsx(styles.formlabel)}>
@@ -142,7 +143,7 @@ export default function Page() {
                     />
                   </Form.Control>
                 </Form.Field>
-                <Form.Field className="grid mb-[10px]" name="question">
+                <Form.Field name="password">
                   <div className="flex items-baseline justify-between">
                     <Form.Label className={clsx(styles.formlabel)}>
                       Password
@@ -183,6 +184,14 @@ export default function Page() {
                 Sign in as guest
               </button>
             </Tabs.Content>
+            <div className="flex w-full justify-center text-xs leading-none text-slate-500">
+              <span className="">
+                Not a member?{" "}
+                <Link className="underline hover:text-black" href="/register">
+                  Register here.
+                </Link>
+              </span>
+            </div>
           </Tabs.Root>
         </div>
       </div>

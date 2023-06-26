@@ -8,7 +8,7 @@ import {
   GithubAuthProvider,
   signInWithPopup,
   signInAnonymously,
-  Auth
+  Auth,
 } from "firebase/auth";
 import clsx from "clsx";
 import * as Form from "@radix-ui/react-form";
@@ -18,6 +18,7 @@ import * as Separator from "@radix-ui/react-separator";
 import { BsGoogle, BsGithub, BsFacebook } from "react-icons/bs";
 import { useAuth, AuthContextType } from "@/components/AuthContext";
 import { synchronizeWithBackend } from "@/lib/utils";
+import Link from "next/link";
 
 export default function Page() {
   const { register, login, auth } = useAuth() as AuthContextType;
@@ -39,8 +40,9 @@ export default function Page() {
     e.preventDefault();
     try {
       setLoading(true);
-      await login(email, password);
-      synchronizeWithBackend(auth);
+      await register(email, password);
+      await synchronizeWithBackend(auth);
+      router.push("/profile");
     } catch (e) {
       console.log(e);
       setError(e);
@@ -50,21 +52,70 @@ export default function Page() {
     setLoading(false);
   }
 
+  async function handleGoogleLogin(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await signInWithPopup(auth, new GoogleAuthProvider());
+      await synchronizeWithBackend(auth);
+      router.push("/profile");
+    } catch (e) {
+      console.log(e);
+      setError(e);
+      setOpen(true);
+    }
+
+    setLoading(false);
+  }
+
+  async function handleGithubLogin(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await signInWithPopup(auth, new GithubAuthProvider());
+      await synchronizeWithBackend(auth);
+      router.push("/profile");
+    } catch (e) {
+      console.log(e);
+      setError(e);
+      setOpen(true);
+    }
+
+    setLoading(false);
+  }
+
+  async function handleFacebookLogin(e: React.FormEvent) {
+    e.preventDefault();
+    try {
+      setLoading(true);
+      await signInWithPopup(auth, new GithubAuthProvider());
+      await synchronizeWithBackend(auth);
+      router.push("/profile");
+    } catch (e) {
+      console.log(e);
+      setError(e);
+      setOpen(true);
+    }
+
+    setLoading(false);
+  }
+
+
   return (
     <>
-      <div className="min-h-full flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
+      <div className="min-h-[calc(100vh-4rem)] pt-16 bg-white flex justify-center py-12 px-4 sm:px-6 lg:px-8">
         <div className="max-w-md w-full space-y-8">
-          <h2 className="mt-4 text-3xl text-center tracking-tight font-light :">
-            Register a new account
+          <h2 className="text-3xl text-center tracking-tight font-light :">
+            Join Habiti.co
           </h2>
 
           <Tabs.Root className={styles.loginBox} defaultValue="passwordSignIn">
             <Tabs.List className={styles.tabBar}>
               <Tabs.Trigger className={styles.tab} value="passwordSignIn">
-                Register with email
+                Email registration
               </Tabs.Trigger>
               <Tabs.Trigger className={styles.tab} value="socialSignIn">
-                Register with social
+                Social registration
               </Tabs.Trigger>
             </Tabs.List>
 
@@ -73,7 +124,10 @@ export default function Page() {
               className={styles.tabContainer}
             >
               {error ? <pre>{JSON.stringify(error, null, 2)}</pre> : null}
-              <Form.Root onSubmit={handleFormSubmit}>
+              <Form.Root
+                onSubmit={handleFormSubmit}
+                className="flex flex-col gap-4"
+              >
                 <Form.Field className="relative" name="email">
                   <div className="flex items-baseline justify-between">
                     <Form.Label className={clsx(styles.formlabel)}>
@@ -97,7 +151,7 @@ export default function Page() {
                     />
                   </Form.Control>
                 </Form.Field>
-                <Form.Field className="grid mb-[10px]" name="question">
+                <Form.Field name="password">
                   <div className="flex items-baseline justify-between">
                     <Form.Label className={clsx(styles.formlabel)}>
                       Password
@@ -119,13 +173,8 @@ export default function Page() {
                   </Form.Control>
                 </Form.Field>
                 <Form.Submit asChild>
-                  <button type="submit" onClick={async () => {
-                  await register(email,password);
-                  synchronizeWithBackend(auth);
-                  router.push("/profile");
-                }}
-                className={"button"}>
-                    Log in
+                  <button type="submit" className={"button"}>
+                    Sign up
                   </button>
                 </Form.Submit>
               </Form.Root>
@@ -137,7 +186,7 @@ export default function Page() {
               <button
                 onClick={async () => {
                   await signInAnonymously(auth);
-                  synchronizeWithBackend(auth);
+                  await synchronizeWithBackend(auth);
                   router.push("/profile");
                 }}
                 className={"button"}
@@ -146,35 +195,28 @@ export default function Page() {
               </button>
             </Tabs.Content>
             <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
-              <button
-                onClick={async () => {
-                  await signInWithPopup(auth, new GoogleAuthProvider());
-                  synchronizeWithBackend(auth);
-                }}
-                className={"button"}
-              >
-                <BsGoogle size={24} /> Sign in with Google
+              <button onClick={handleGoogleLogin} className={"button"}>
+                <BsGoogle size={24} /> Register with Google
               </button>
-              <button
-                onClick={async () => {
-                  await signInWithPopup(auth, new GithubAuthProvider());
-                  synchronizeWithBackend(auth);
-                }}
-                className={"button"}
-              >
-                <BsGithub size={24} /> Sign in with Github
+              <button onClick={handleGithubLogin} className={"button"}>
+                <BsGithub size={24} /> Register with Github
               </button>
               <button
                 tabIndex={0}
-                onClick={async () => {
-                  await signInWithPopup(auth, new GoogleAuthProvider());
-                  synchronizeWithBackend(auth);
-                }}
+                onClick={handleFacebookLogin}
                 className={"button"}
               >
-                <BsFacebook size={24} /> Sign in with Facebook
+                <BsFacebook size={24} /> Register with Facebook
               </button>
             </Tabs.Content>
+            <div className="flex w-full justify-center text-xs leading-none text-slate-500">
+              <span className="">
+                Already a member?{" "}
+                <Link className="underline hover:text-black" href="/login">
+                  Sign in here.
+                </Link>
+              </span>
+            </div>
           </Tabs.Root>
         </div>
       </div>
