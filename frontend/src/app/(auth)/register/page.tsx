@@ -103,9 +103,10 @@ export default function Page() {
 
   return (
     <>
-      <div className="min-h-[calc(100vh-4rem)] pt-16 bg-white flex justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <h2 className="text-3xl text-center tracking-tight font-light :">
+      <div className={clsx("min-h-[calc(100vh-4rem)] bg-white relative pt-16 flex justify-center py-12 px-4 sm:px-6 lg:px-8")}>
+        <div className={clsx(styles.pattern)}/>
+        <div className="max-w-md w-full space-y-8 z-50">
+        <h2 className={clsx(styles.pageTitle)}>
             Join Habiti.co
           </h2>
 

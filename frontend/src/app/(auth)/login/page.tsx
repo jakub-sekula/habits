@@ -7,6 +7,7 @@ import {
   GithubAuthProvider,
   signInWithPopup,
   signInAnonymously,
+  signInWithRedirect,
 } from "firebase/auth";
 import clsx from "clsx";
 import * as Form from "@radix-ui/react-form";
@@ -20,7 +21,7 @@ import Link from "next/link";
 
 export default function Page() {
   const router = useRouter();
-  const { login, auth } = useAuth() as AuthContextType;
+  const { login, auth, currentUser } = useAuth() as AuthContextType;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<any>(null);
   const [open, setOpen] = useState(false);
@@ -30,6 +31,12 @@ export default function Page() {
     const ref = timerRef.current;
     return () => clearTimeout(ref);
   }, []);
+
+  useEffect(() => {
+    if(currentUser) {
+      router.push("/habits")
+    }
+  }, [currentUser, router]);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -52,13 +59,14 @@ export default function Page() {
 
   return (
     <>
-      <div className="min-h-[calc(100vh-4rem)] pt-16 bg-white flex justify-center py-12 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-md w-full space-y-8">
-          <h2 className="text-3xl text-center tracking-tight font-light :">
+      <div className={clsx("min-h-[calc(100vh-4rem)] bg-white relative pt-16 flex justify-center py-12 px-4 md:px-6 lg:px-8")}>
+        <div className={clsx(styles.pattern)}/>
+        <div className="max-w-md w-full space-y-8 z-50">
+          <h2 className={clsx(styles.pageTitle)}>
             Sign in to your account
           </h2>
 
-          <Tabs.Root className={styles.loginBox} defaultValue="socialSignIn">
+          <Tabs.Root className={styles.loginBox} defaultValue="passwordSignIn">
             <Tabs.List className={styles.tabBar}>
               <Tabs.Trigger className={styles.tab} value="socialSignIn">
                 Social sign in
@@ -70,7 +78,7 @@ export default function Page() {
             <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
               <button
                 onClick={async () => {
-                  await signInWithPopup(auth, new GoogleAuthProvider());
+                  await signInWithRedirect(auth, new GoogleAuthProvider());
                   synchronizeWithBackend(auth);
                   router.push("/profile");
                 }}
@@ -90,7 +98,7 @@ export default function Page() {
               </button>
               <button
                 onClick={async () => {
-                  await signInWithPopup(auth, new GoogleAuthProvider());
+                  await signInWithRedirect(auth, new GoogleAuthProvider());
                   synchronizeWithBackend(auth);
                   router.push("/profile");
                 }}
