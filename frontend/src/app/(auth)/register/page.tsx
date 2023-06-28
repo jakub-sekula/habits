@@ -110,13 +110,13 @@ export default function Page() {
             Join Habiti.co
           </h2>
 
-          <Tabs.Root className={styles.loginBox} defaultValue="passwordSignIn">
+          <Tabs.Root className={styles.loginBox} defaultValue="socialSignIn">
             <Tabs.List className={styles.tabBar}>
-              <Tabs.Trigger className={styles.tab} value="passwordSignIn">
-                Email registration
-              </Tabs.Trigger>
               <Tabs.Trigger className={styles.tab} value="socialSignIn">
                 Social registration
+              </Tabs.Trigger>
+              <Tabs.Trigger className={styles.tab} value="passwordSignIn">
+                Email registration
               </Tabs.Trigger>
             </Tabs.List>
 

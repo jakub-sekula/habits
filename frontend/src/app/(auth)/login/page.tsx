@@ -66,7 +66,7 @@ export default function Page() {
             Sign in to your account
           </h2>
 
-          <Tabs.Root className={styles.loginBox} defaultValue="passwordSignIn">
+          <Tabs.Root className={styles.loginBox} defaultValue="socialSignIn">
             <Tabs.List className={styles.tabBar}>
               <Tabs.Trigger className={styles.tab} value="socialSignIn">
                 Social sign in
