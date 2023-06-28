@@ -93,18 +93,8 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
           const streakBonus = isStreakActive
             ? streak * baseRate * multiplier
             : 0;
-          // const pointsAdded = baseRate + streakBonus;
-          // const newHabitScore = habit.score + pointsAdded;
           const { score: scoreAfter } = await habitUtils.getHabitDetails(habit);
           const pointsAdded = scoreAfter - scoreBefore;
-          // totalScore += pointsAdded
-
-          // await prisma.habit.update({
-          //   where: { id: habit.id },
-          //   data: {
-          //     score: scoreAfter,
-          //   },
-          // });
           await prisma.habit.update({
             where: { id: habit.id },
             data: {
@@ -112,14 +102,12 @@ export async function seed(userId = "H6Dmr9nLRqdGsrNTk6HhTSYw8IT2") {
             },
           });
 
-          // const pointsAdded = scoreAfter - scoreBefore;
 
           const totalScore = await prisma.habit.aggregate({
             _sum: { score: true },
             where: { userId },
           });
 
-          console.log(totalScore);
 
           log = await prisma.log.update({
             where: { id: log.id },

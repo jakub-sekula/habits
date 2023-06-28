@@ -92,15 +92,15 @@ export async function calculateCounts(
       );
       break;
     case "week":
-      const firstDayOfWeek = time.getDate() - time.getDay() +1 ;
+      // getDay() returns Sunday as day 0, so the week caulculation is wrong
+      // We have to subtract 6 to set the start of the week to the previous Monday
+      const firstDayOfWeek = time.getDate() - time.getDay() + 1;
       startDate = new Date(time.getFullYear(), time.getMonth(), firstDayOfWeek);
-      console.log("start date ", startDate)
       endDate = new Date(
         time.getFullYear(),
         time.getMonth(),
         firstDayOfWeek + 7
       );
-      console.log("end date ", endDate)
 
       break;
     case "month":
@@ -125,8 +125,6 @@ export async function calculateCounts(
       },
     },
   });
-
-  console.log(loggedCount)
 
   return {
     loggedCount,
@@ -215,7 +213,6 @@ function findConsecutivePeriods(
       });
     }
   });
-
   return consecutivePeriods;
 }
 
@@ -343,7 +340,7 @@ function getPeriodFromDate(date: string, period: string): string {
  */
 function getWeekNumber(date: Date): number {
   const firstDayOfYear = new Date(date.getFullYear(), 0, 1);
-  const daysOffset = firstDayOfYear.getDay() - 1;
+  const daysOffset = firstDayOfYear.getDay();
   const firstMondayOfYear = new Date(
     date.getFullYear(),
     0,
@@ -355,12 +352,14 @@ function getWeekNumber(date: Date): number {
 
 async function isStreakActive(
   habit: Habit,
-  date: Date = new Date()
+  date: Date = new Date(),
+  gracePeriod = 2
+  // display streak active up to 1 period after last log
 ): Promise<boolean> {
   try {
     const now = date.getTime();
     const { period, frequency } = habit;
-    const allowedTime = (1.1 * getDuration(period)) / 1000;
+    const allowedTime = (gracePeriod * getDuration(period)) / 1000;
     const oldestAllowableTime = new Date(now - allowedTime * 1000);
 
     const logs = await prisma.log.findMany({
@@ -405,7 +404,7 @@ function getCurrentStreak(
 ): number {
   try {
     const length = consecutivesArray.length;
-    return consecutivesArray[length - 1].duration;
+    return length === 0 ? 0 : consecutivesArray[length - 1]?.duration;
   } catch (err) {
     console.log(err);
     return 0;
