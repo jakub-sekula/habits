@@ -36,7 +36,7 @@ export default function Page() {
         Authorization: `Bearer ${token}`,
       });
 
-      const res = await fetch(`http://api.habits.jakubsekula.com/habits`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/habits`, {
         headers,
       });
 
@@ -50,7 +50,7 @@ export default function Page() {
       if (totalPages != 1) {
         while (currentPage <= totalPages) {
           const nextPageRes = await fetch(
-            `http://api.habits.jakubsekula.com/habits?page=${currentPage + 1}`,
+            `${process.env.NEXT_PUBLIC_API_URL}/habits?page=${currentPage + 1}`,
             {
               headers,
             }
@@ -80,14 +80,14 @@ export default function Page() {
   }, [currentUser]);
 
   //   habits?.sort((a, b) => {
-  //     if (a.completed_for_period && !b.completed_for_period) {
-  //         return 1; // a comes after b
-  //     } else if (!a.completed_for_period && b.completed_for_period) {
-  //         return -1; // a comes before b
-  //     } else {
+  //     // if (a.completed_for_period && !b.completed_for_period) {
+  //     //     return 1; // a comes after b
+  //     // } else if (!a.completed_for_period && b.completed_for_period) {
+  //     //     return -1; // a comes before b
+  //     // } else {
   //         // Sort alphabetically when completed status is the same
   //         return a.name.localeCompare(b.name);
-  //     }
+  //     // }
   // });
 
   const totalScore = habits?.reduce((score, habit) => {
@@ -124,6 +124,7 @@ export default function Page() {
           <HabitDetails
             setHabits={setHabits}
             setShowDetails={setShowDetails}
+            key={selected.id}
             habit={selected}
             className={clsx(
               " w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
@@ -158,41 +159,15 @@ export default function Page() {
         ) : null}
 
         {!!habits
-          ? habits
-              ?.filter((habit) => !habit.completed_for_period)
-              .map((habit) => (
-                <HabitCard
-                  key={habit.id}
-                  habit={habit}
-                  setHabits={setHabits}
-                  setShowDetails={setShowDetails}
-                  setSelected={setSelected}
-                />
-              ))
-          : null}
-        {loading
-          ? new Array(10).fill("").map((habit, index) => {
-              return (
-                <div
-                  key={index}
-                  className={`w-full bg-slate-50 h-[12.625rem] animate-pulse animato p-4 flex flex-col gap-8 rounded-lg`}
-                ></div>
-              );
-            })
-          : null}
-        <div className="col-span-full">Completed for today</div>
-        {!!habits
-          ? habits
-              ?.filter((habit) => habit.completed_for_period)
-              .map((habit) => (
-                <HabitCard
-                  key={habit.id}
-                  habit={habit}
-                  setHabits={setHabits}
-                  setShowDetails={setShowDetails}
-                  setSelected={setSelected}
-                />
-              ))
+          ? habits?.map((habit) => (
+              <HabitCard
+                key={habit.id}
+                habit={habit}
+                setHabits={setHabits}
+                setShowDetails={setShowDetails}
+                setSelected={setSelected}
+              />
+            ))
           : null}
         {loading
           ? new Array(10).fill("").map((habit, index) => {

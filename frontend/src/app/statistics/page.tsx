@@ -29,7 +29,7 @@ export default function Page() {
       });
 
       const res = await fetch(
-        `http://api.habits.jakubsekula.com/logs?limit=1000&sortBy=createdAt`,
+        `${process.env.NEXT_PUBLIC_API_URL}/logs?limit=1000&sortBy=createdAt`,
         {
           headers,
         }
@@ -45,7 +45,7 @@ export default function Page() {
       if (totalPages != 1) {
         while (currentPage < totalPages) {
           const nextPageRes = await fetch(
-            `http://api.habits.jakubsekula.com/logs?page=${
+            `${process.env.NEXT_PUBLIC_API_URL}/logs?page=${
               currentPage + 1
             }&limit=1000&sortBy=createdAt`,
             {

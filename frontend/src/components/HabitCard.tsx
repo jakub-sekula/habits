@@ -26,13 +26,14 @@ export default function HabitCard({
     streakActive,
     progressString,
     completed_for_period,
+    period
   } = habit as Habit;
 
   async function logHabit() {
     try {
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
-      const res = await fetch(`http://api.habits.jakubsekula.com/logs?habitId=${id}`, {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/logs?habitId=${id}`, {
         method: "POST",
         headers: new Headers({
           Authorization: `Bearer ${token}`,
@@ -75,7 +76,7 @@ console.log(pressed)
       }}
       className={clsx(
         !!color && colors?.[color] ? colors[color] : null,
-        completed_for_period ? 'opacity-75' : null,
+        completed_for_period ? '' : null,
         `w-full p-4 flex flex-col gap-8 rounded-lg hover:scale-[101%] transition-all duration-75 shadow-inner select-none`,
         pressed ? "hover:scale-[98%]" : null
       )}
@@ -98,7 +99,12 @@ console.log(pressed)
         <div className="flex gap-2">
           {streakActive && currentStreak > 0 && (
             <span className="bg-black/50 p-1 w-fit leading-none rounded-sm text-white text-sm">
-              🔥 {currentStreak}
+              🔥 {currentStreak} {currentStreak>1 ? period + "s" : period}
+            </span>
+          )}
+          {completed_for_period && (
+            <span className="bg-black/50 p-1 px-2 w-fit flex items-center leading-none rounded-sm text-white text-xs">
+              DONE
             </span>
           )}
         </div>

@@ -2,7 +2,7 @@ import { Auth } from "firebase/auth";
 
 export async function synchronizeWithBackend(auth: Auth) {
   const token = await auth.currentUser?.getIdToken();
-  const res = await fetch("http://api.habits.jakubsekula.com/auth/login", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
     method: "POST",
     headers: new Headers({
       Authorization: `Bearer ${token}`,

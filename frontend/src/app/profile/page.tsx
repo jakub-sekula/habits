@@ -19,7 +19,7 @@ export default function Home() {
       try {
         const token = currentUser && (await currentUser.getIdToken());
         if (!token) return;
-        const res = await fetch("http://api.habits.jakubsekula.com/", {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}`, {
           headers: new Headers({
             Authorization: `Bearer ${token}`,
           }),

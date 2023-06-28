@@ -5,6 +5,8 @@ import useClickOutside from "@/lib/useClickOutside";
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import styles from "./HabitDetails.module.css";
+import LogsCalendar from "./LogsCalendar";
+import LogsCalendarLoader from "./LogsCalendarLoader";
 
 export default function HabitDetails({
   habit,
@@ -55,7 +57,7 @@ export default function HabitDetails({
       });
 
       const res = await fetch(
-        `http://api.habits.jakubsekula.com/logs?habitId=${currentHabit.id}&limit=7&sortBy=createdAt`,
+        `${process.env.NEXT_PUBLIC_API_URL}/logs?habitId=${currentHabit.id}&limit=7&sortBy=createdAt`,
         {
           headers,
         }
@@ -85,7 +87,7 @@ export default function HabitDetails({
       });
 
       const res = await fetch(
-        `http://api.habits.jakubsekula.com/logs/last28days?habitId=${currentHabit.id}&limit=5000`,
+        `${process.env.NEXT_PUBLIC_API_URL}/logs/last28days?habitId=${currentHabit.id}&limit=5000`,
         {
           headers,
         }
@@ -106,7 +108,7 @@ export default function HabitDetails({
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
       const res = await fetch(
-        `http://api.habits.jakubsekula.com/logs?habitId=${currentHabit.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/logs?habitId=${currentHabit.id}`,
         {
           method: "POST",
           headers: new Headers({
@@ -137,7 +139,7 @@ export default function HabitDetails({
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
       const res = await fetch(
-        `http://api.habits.jakubsekula.com/habits/${currentHabit.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/habits/${currentHabit.id}`,
         {
           method: "DELETE",
           headers: new Headers({
@@ -166,7 +168,7 @@ export default function HabitDetails({
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
       const res = await fetch(
-        `http://api.habits.jakubsekula.com/habits/${currentHabit.id}`,
+        `${process.env.NEXT_PUBLIC_API_URL}/habits/${currentHabit.id}`,
         {
           method: "PUT",
           headers: new Headers({
@@ -290,7 +292,11 @@ export default function HabitDetails({
               View all
             </Link>
           </div>
-          <LogsCalendar className="w-full h-full" logs={last28DaysLogs} />
+          {loading ? (
+            <LogsCalendarLoader />
+          ) : (
+            <LogsCalendar className="w-full h-full" logs={last28DaysLogs} />
+          )}
         </div>
         <div id="entries-history" className="flex h-80 flex-col w-full">
           <div className="flex w-full justify-between items-baseline leading-none mb-4">
@@ -373,7 +379,6 @@ interface LogEntryProps {
 }
 
 import { BsPlus, BsTrash, BsX } from "react-icons/bs";
-import LogsCalendar from "./LogsCalendar";
 
 const LogEntry: React.FC<LogEntryProps> = ({ log }) => {
   return (

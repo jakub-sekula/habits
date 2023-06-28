@@ -52,6 +52,7 @@ export default function HabitForm({
     defaultValues: {
       weekdays: [],
       color: "blue",
+      image:"🏆"
     },
   });
   const { currentUser } = useAuth() as AuthContextType;
@@ -62,7 +63,7 @@ export default function HabitForm({
     try {
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
-      const res = await fetch("http://api.habits.jakubsekula.com/habits", {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/habits`, {
         method: "POST",
         headers: new Headers({
           Authorization: `Bearer ${token}`,
