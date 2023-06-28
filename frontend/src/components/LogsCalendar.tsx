@@ -33,7 +33,7 @@ export default function LogsCalendar({ logs, className }: LogsCalendarProps) {
                   <span className="text-[10px] text-center text-slate-400">
                     {new Date(item).toLocaleDateString("en-gb", {
                       day: "numeric",
-                      month: "short",
+                      month: "numeric",
                     })}
                   </span>
                 </div>
