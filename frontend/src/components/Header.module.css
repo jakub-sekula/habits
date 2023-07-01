@@ -1,5 +1,5 @@
 .navItem {
-  @apply hover:bg-sky-50  flex h-full items-center select-none px-3 py-2 data-[active]:font-bold min-w-[6rem] justify-center  data-[active]:text-black text-neutral-500 transition-colors duration-300
+  @apply hover:bg-sky-50 h-full items-center select-none px-3 py-2 data-[active]:font-bold min-w-[6rem] justify-center  data-[active]:text-black text-neutral-500 transition-colors duration-300 flex
 }
 
 .navItemDropdown {
@@ -9,7 +9,5 @@
 
 .header {
   font-family: "PT Serif";
-  margin: 0 auto;
-  background-color: white;
-  @apply border-b 
+  @apply border-b mx-auto bg-white
 }

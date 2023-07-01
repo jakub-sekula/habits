@@ -57,7 +57,6 @@ export default function HabitCard({
       console.log(e);
     }
   }
-console.log(pressed)
   return (
     <div
     onMouseDown={() => {

@@ -101,16 +101,14 @@ export default function Page() {
       {modalOpen ? (
         <div
           className={clsx(
-            "fixed inset-0 z-50 bg-white/50 backdrop-blur-md flex items-center justify-center",
+            "fixed inset-0 z-50 bg-white/50 backdrop-blur-md flex items-center justify-center p-4",
             !modalOpen && "hidden"
           )}
         >
           <HabitForm
             setOpen={setModalOpen}
             setHabits={setHabits}
-            className={clsx(
-              "mb-4 bg-white w-full max-w-3xl overflow-hidden rounded-xl flex flex-col"
-            )}
+            className="max-w-3xl"
           />
         </div>
       ) : null}

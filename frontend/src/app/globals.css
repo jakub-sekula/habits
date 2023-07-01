@@ -47,3 +47,7 @@
 .violet-gradient {
   background: linear-gradient(246.32deg, #72aafd 0%, #8e72fd 100%);
 }
+
+.indigo-gradient {
+  background: linear-gradient(246.32deg, #538fe9 0%, #0e56e7 100%);
+}

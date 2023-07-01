@@ -5,9 +5,10 @@ import styles from "./HabitForm.module.css";
 import clsx from "clsx";
 import { AuthContextType, useAuth } from "./AuthContext";
 import { Habit } from "@/lib/types";
-import { FormEvent, useEffect, useRef, useState } from "react";
+import { useState } from "react";
 
 import useClickOutside from "@/lib/useClickOutside";
+import { BsX } from "react-icons/bs";
 
 type FormData = {
   image?: string;
@@ -29,37 +30,19 @@ export default function HabitForm({
   setHabits,
   setOpen,
 }: ChildComponentProps) {
-  // const ref = useRef<HTMLFormElement>(null);
-
-  // useEffect(() => {
-  //   const handleClickOutside = (event: MouseEvent) => {
-  //     if (ref.current && !ref.current.contains(event.target as Node)) {
-  //       setOpen(false);
-  //     }
-  //   };
-
-  //   document.addEventListener("mousedown", handleClickOutside);
-
-  //   return () => {
-  //     document.removeEventListener("mousedown", handleClickOutside);
-  //   };
-  // }, [setOpen]);
-
   const ref = useClickOutside<HTMLFormElement>(() => setOpen(false));
-  
-  const [color, setColor] = useState<string>("red");
+
+  const [color, setColor] = useState<string>("blue");
   const { register, handleSubmit, reset, getValues } = useForm<FormData>({
     defaultValues: {
       weekdays: [],
-      color: "blue",
-      image:"🏆"
+      color: "indigo",
+      image: "🏆",
     },
   });
   const { currentUser } = useAuth() as AuthContextType;
-  console.log(color, getValues("color"));
 
   const onSubmit = handleSubmit(async (data) => {
-    console.log(data.color);
     try {
       const token = currentUser && (await currentUser.getIdToken());
       if (!token) throw Error("Not authorized");
@@ -85,52 +68,69 @@ export default function HabitForm({
   return (
     <Form.Root
       onSubmit={onSubmit}
-      className={clsx(className, styles.shadow)}
+      className={clsx(
+        className,
+        styles.shadow,
+        "w-full bg-white flex flex-col h-fit rounded-2xl overflow-clip"
+      )}
       ref={ref}
     >
-      <div
-        className={clsx(
-          "w-full h-full relative flex items-center p-6 gap-4",
-          colors[color]
-        )}
-      >
-        <Form.Field className="relative" name="title">
-          {/* <Form.Label>Emoji</Form.Label> */}
-          <Form.Control asChild>
-            <input
-              {...register("image")}
-              className="rounded-full w-24 h-24 bg-white text-4xl flex justify-center items-center text-center"
-            />
-          </Form.Control>
-        </Form.Field>
-        <Form.Field
-          className="flex flex-col text-white font-semibold gap-1 "
-          name="name"
-        >
-          <Form.Label>Habit title</Form.Label>
-          <Form.Control asChild>
-            <input
-              required
-              {...register("name")}
-              placeholder="My habit"
-              className="w-64 bg-white text-slate-800 py-2 px-3 rounded-md"
-            />
-          </Form.Control>
-        </Form.Field>
-        <button
-          className="absolute top-4 right-4"
-          onClick={() => {
-            setOpen(false);
-          }}
-        >
-          close
-        </button>
+      {/* Header */}
+      <div className={clsx("p-6 w-full h-full relative", colors[color])}>
+        <div className="flex w-full gap-4 h-full items-center">
+          {/* Emoji */}
+          <Form.Field
+            className="w-[100px] h-[100px] rounded-full shrink-0 bg-white flex items-center justify-center text-5xl"
+            name="title"
+          >
+            <Form.Control asChild>
+              <input
+                {...register("image")}
+                className="rounded-full w-24 h-24 bg-white text-4xl flex justify-center items-center text-center"
+              />
+            </Form.Control>
+          </Form.Field>
+
+          {/* Tile */}
+          <Form.Field
+            className="flex flex-col text-white font-semibold gap-1 w-full "
+            name="name"
+          >
+            {/* <Form.Label>Habit title</Form.Label> */}
+            <Form.Control asChild>
+              <input
+                required
+                {...register("name")}
+                placeholder="Habit title"
+                className={clsx(
+                  "bg-white/10 shadow-inner py-1 px-2 placeholder:text-white text-white text-4xl  rounded-md"
+                )}
+              />
+            </Form.Control>
+          </Form.Field>
+
+          {/* Close */}
+          <button
+            className="absolute top-4 right-4"
+            onClick={() => {
+              if (typeof setOpen === "function") {
+                setOpen(false);
+              }
+            }}
+          >
+            <BsX size={28} />
+          </button>
+        </div>
       </div>
+
+      {/* Form fields */}
       <div className="flex flex-col w-full p-6 gap-6">
         {/* Weekdays */}
         <Form.Field name="weekdays" className="flex flex-col gap-2">
-          <Form.Label className={styles.fieldLabel}>Weekdays</Form.Label>
-          <div className="flex gap-4">
+          <Form.Label className={styles.fieldLabel}>
+            Preferred weekdays
+          </Form.Label>
+          <div className="flex gap-4 flex-wrap">
             <DayLabel day="Mon" register={register} />
             <DayLabel day="Tue" register={register} />
             <DayLabel day="Wed" register={register} />
@@ -177,7 +177,7 @@ export default function HabitForm({
         <Form.Field name="color" className="flex flex-col gap-2">
           <Form.Label className={styles.fieldLabel}>Color</Form.Label>
 
-          <div className="flex gap-4">
+          <div className="flex justify-between md:justify-normal gap-4 flex-wrap">
             {Object.keys(colors).map((key) => (
               <ColorLabel
                 key={`key-${key}`}
@@ -189,17 +189,18 @@ export default function HabitForm({
             ))}
           </div>
         </Form.Field>
-        <Form.Submit asChild>
-          <button
-            className={clsx(
-              "font-semibold px-4 py-2 w-fit self-end rounded-md text-sm",
-              colors[color],
-              textColors[color]
-            )}
-          >
-            Add new habit
-          </button>
-        </Form.Submit>
+        {/* <Form.Submit asChild> */}
+        <button
+          type="submit"
+          className={clsx(
+            "font-semibold px-4 py-2 w-fit self-end rounded-md text-sm",
+            colors[color],
+            textColors[color]
+          )}
+        >
+          Add new habit
+        </button>
+        {/* </Form.Submit> */}
       </div>
     </Form.Root>
   );
@@ -232,7 +233,7 @@ function ColorLabel({
           }}
         />
         <div
-          className={`rounded-full w-full h-full bg-re-500 ${colors[value]} peer-checked:outline transition-colors duration-200`}
+          className={`rounded-full w-full h-full aspect-square ${colors[value]} peer-checked:outline transition-colors duration-200`}
         />
       </label>
     </>
@@ -260,14 +261,14 @@ function DayLabel({ day, register }: { day: string; register: Function }) {
 }
 
 const colors: { [key: string]: string } = {
-  red: "peer-checked:bg-red-500 bg-red-300",
-  orange: "peer-checked:bg-orange-500 bg-orange-300",
-  yellow: "peer-checked:bg-yellow-500 bg-yellow-300",
-  green: "peer-checked:bg-green-500 bg-green-300",
-  blue: "peer-checked:bg-blue-500 bg-blue-300",
-  indigo: "peer-checked:bg-indigo-500 bg-indigo-300",
-  violet: "peer-checked:bg-violet-500 bg-violet-300",
-  amber: "peer-checked:bg-amber-500 bg-amber-300",
+  red: "red-gradient text-white",
+  orange: "orange-gradient text-white",
+  yellow: "yellow-gradient text-[#5E2B06]",
+  green: "green-gradient text-white",
+  blue: "blue-gradient text-white",
+  indigo: "indigo-gradient text-white",
+  violet: "violet-gradient text-white",
+  pink: "pink-gradient text-white",
 };
 
 const textColors: { [key: string]: string } = {

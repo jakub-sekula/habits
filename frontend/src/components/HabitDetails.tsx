@@ -191,7 +191,7 @@ export default function HabitDetails({
       className={clsx(
         className,
         styles.shadow,
-        "w-[864px] bg-white flex flex-col h-max rounded-2xl overflow-hidden"
+        " bg-white flex flex-col h-max rounded-2xl overflow-hidden"
       )}
     >
       {/* header */}
@@ -240,7 +240,8 @@ export default function HabitDetails({
           </div>
         </div>
       </section>
-      {/* stats */}
+
+      {/* Stats */}
       <div className="flex gap-2 w-full justify-between bg-[#fafafa] py-6 px-14 h-full">
         {currentHabit.streakActive && currentHabit.currentStreak > 0 ? (
           <Stat
@@ -283,6 +284,9 @@ export default function HabitDetails({
           <Stat icon="⚡️" title="Points multiplier" value="1.00x" />
         )}
       </div>
+
+      {/* TODO frequency and period */}
+
       {/* Calendar and logs */}
       <div className="flex gap-8 p-8">
         <div className="flex flex-col w-full h-fit">
