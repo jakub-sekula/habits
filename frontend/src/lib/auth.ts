@@ -12,16 +12,6 @@ const firebaseConfig = {
   // measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// const firebaseConfig = {
-//   apiKey: "AIzaSyAThdl0c79qPws-mInoKHKzn7Y5MdG6ujE",
-//   authDomain: "habit-tracker-1685372449187.firebaseapp.com",
-//   projectId: "habit-tracker-1685372449187",
-//   storageBucket: "habit-tracker-1685372449187.appspot.com",
-//   messagingSenderId: "585549058906",
-//   appId: "1:585549058906:web:91e18e5c4c3247ff159963",
-//   measurementId: "G-3YJQT7ES0M"
-// };
-
 const app = initializeApp(firebaseConfig);
 
 // gives us an auth instance
