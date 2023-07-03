@@ -49,9 +49,25 @@ export async function calculateStreaks(habit: Habit): Promise<{
     0
   );
 
-  const streakActive = await isStreakActive(habit);
+  // This is pretty ugly, but it works.
+  // TODO refactor this into something more understandable
+  const lastConsecutive = consecutivePeriods[consecutivePeriods.length - 1];
+  const lastDate = lastConsecutive?.periodEnd;
 
-  const currentStreak = getCurrentStreak(consecutivePeriods);
+  const valid = !!lastDate;
+
+  const todaysDate = getPeriodFromDate(
+    new Date().toISOString().split("T")[0],
+    period
+  );
+
+  const duration = valid
+    ? calculateDuration(lastDate, todaysDate, period)
+    : null;
+
+  const streakActive = valid && typeof duration === "number" && duration <= 2;
+
+  const currentStreak = streakActive ? getCurrentStreak(consecutivePeriods) : 0;
 
   let multiplier = 0;
 
@@ -178,11 +194,32 @@ function findConsecutivePeriods(
     periodEnd: string;
     duration: number;
   }> = [];
+
   let periodStart = "";
   let periodEnd = "";
 
   Object.keys(entryCountByPeriod).forEach((key, index) => {
     const value = entryCountByPeriod[key];
+
+    let timeSincePreviousEntries = 0;
+    let previousKey = key;
+    if (index != 0) {
+      previousKey = Object.keys(entryCountByPeriod)[index - 1];
+      timeSincePreviousEntries = calculateDuration(previousKey, key, period);
+    }
+
+    if (timeSincePreviousEntries > 2) {
+      const duration = calculateDuration(periodStart, previousKey, period);
+      consecutivePeriods.push({
+        periodStart,
+        periodEnd: previousKey,
+        duration,
+      });
+
+      periodStart = "";
+      periodEnd = "";
+      return;
+    }
 
     if (value >= frequency) {
       if (periodStart === "") {
@@ -190,26 +227,32 @@ function findConsecutivePeriods(
       }
       periodEnd = key;
     } else {
-      if (!!periodStart && !!periodEnd) {
+      if ((!!periodStart && !!periodEnd) || timeSincePreviousEntries > 2) {
+        //duration in periods
+        const duration = calculateDuration(periodStart, periodEnd, period);
         consecutivePeriods.push({
           periodStart,
           periodEnd,
-          duration: calculateDuration(periodStart, periodEnd, period),
+          duration,
         });
+
         periodStart = "";
         periodEnd = "";
       }
     }
 
     if (
-      index === Object.keys(entryCountByPeriod).length - 1 &&
-      !!periodStart &&
-      !!periodEnd
+      (index === Object.keys(entryCountByPeriod).length - 1 &&
+        !!periodStart &&
+        !!periodEnd) ||
+      timeSincePreviousEntries > 2
     ) {
+      //duration in periods
+      const duration = calculateDuration(periodStart, periodEnd, period);
       consecutivePeriods.push({
         periodStart,
         periodEnd,
-        duration: calculateDuration(periodStart, periodEnd, period),
+        duration,
       });
     }
   });
@@ -238,7 +281,7 @@ function calculateDuration(
       // format: 2022-12-17
       start = new Date(periodStart).getTime();
       end = new Date(periodEnd).getTime();
-      return Math.floor((end - start) / (1000 * 3600 * 24)) + 1;
+      return Math.floor((end - start) / (1000 * 3600 * 24));
 
     case "week":
       // format: 2019-Wk27
@@ -333,6 +376,38 @@ function getPeriodFromDate(date: string, period: string): string {
   }
 }
 
+function getDateFromPeriod(date: string, period: string): string {
+  const [year, month, week] = date.split(/-|Wk/);
+
+  switch (period) {
+    case "day":
+      // For daily period, return the input period as the date
+      return date;
+    case "week":
+      // For weekly period, calculate the start date of the week based on the week number and year
+      return getStartDateOfWeek(parseInt(year), parseInt(week))
+        .toISOString()
+        .split("T")[0];
+    case "month":
+      // For monthly period, return the first day of the month based on the year and month
+      return `${year}-${month.padStart(2, "0")}-01`;
+    case "year":
+      // For yearly period, return the first day of the year based on the input year
+      return `${year}-01-01`;
+    default:
+      return "";
+  }
+}
+
+// Helper function to get the start date of a week based on the week number and year
+function getStartDateOfWeek(year: number, week: number): Date {
+  const date = new Date(year, 0, 1);
+  const day = date.getDay() || 7;
+  const dayOffset = (week - 1) * 7;
+  const startOfWeek = new Date(year, 0, 1 + dayOffset - day);
+  return startOfWeek;
+}
+
 /**
  * Calculates the week number of a given date.
  * @param date The date to calculate the week number from.
@@ -353,7 +428,7 @@ function getWeekNumber(date: Date): number {
 async function isStreakActive(
   habit: Habit,
   date: Date = new Date(),
-  gracePeriod = 2
+  gracePeriod = 1
   // display streak active up to 1 period after last log
 ): Promise<boolean> {
   try {
@@ -374,7 +449,13 @@ async function isStreakActive(
         createdAt: "desc",
       },
     });
-
+    if (habit.name === "Daily Habit - twice per day") {
+      console.log({
+        name: habit.name,
+        active: logs.length >= frequency,
+        length: logs.length,
+      });
+    }
     if (!logs.length) return false;
 
     return logs.length >= frequency;
@@ -404,7 +485,7 @@ function getCurrentStreak(
 ): number {
   try {
     const length = consecutivesArray.length;
-    return length === 0 ? 0 : consecutivesArray[length - 1]?.duration;
+    return length === 0 ? 0 : consecutivesArray[length - 1]?.duration + 1;
   } catch (err) {
     console.log(err);
     return 0;
