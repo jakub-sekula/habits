@@ -144,7 +144,7 @@ export default function Page() {
           Selected habit: {selected ? selected.id : null}
         </p>
       </div>
-      <div className="w-full max-w-5xl grid gap-4 md:grid-cols-2">
+      <div className="w-full grid gap-4 md:grid-cols-2">
         {!modalOpen ? (
           <button
             className="button self-end justify-self-end  col-span-full w-fit"
