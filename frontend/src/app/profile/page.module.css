@@ -1,0 +1,7 @@
+.sectionContainer {
+	@apply bg-white w-full max-w-4xl p-4 h-fit rounded-lg flex flex-col  mb-4 border border-slate-200
+}
+
+.sectionHeading {
+	@apply font-bold mb-2
+}

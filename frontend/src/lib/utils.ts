@@ -1,4 +1,4 @@
-import { Auth } from "firebase/auth";
+import { Auth, UserInfo } from "firebase/auth";
 
 export async function synchronizeWithBackend(auth: Auth) {
   const token = await auth.currentUser?.getIdToken();
@@ -18,4 +18,9 @@ export function getInitials(str: string | null) {
   const matches = str.match(pattern) || [];
   const initials = matches.map((match) => match.charAt(match.length - 1));
   return initials.join("");
+}
+
+
+export function checkProviderIdExists(providerData: UserInfo[], providerId: string): boolean {
+  return providerData.some(entry => entry.providerId === providerId);
 }
