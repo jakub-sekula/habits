@@ -16,8 +16,8 @@ services:
       - frontend
     build: ./nginx
     volumes:
-      - "/etc/letsencrypt/live/jakubsekula.com/fullchain.pem:/etc/nginx/certificates/fullchain.pem"
-      - "/etc/letsencrypt/live/jakubsekula.com/privkey.pem:/etc/nginx/certificates/privkey.pem"
+      - "/etc/letsencrypt/live/dev.jakubsekula.com/fullchain.pem:/etc/nginx/certificates/fullchain.pem"
+      - "/etc/letsencrypt/live/dev.jakubsekula.com/privkey.pem:/etc/nginx/certificates/privkey.pem"
     ports:
       - "80:80"
       - "443:443"
