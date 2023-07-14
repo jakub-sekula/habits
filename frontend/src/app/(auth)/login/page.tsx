@@ -7,7 +7,7 @@ import {
   GithubAuthProvider,
   signInWithPopup,
   signInAnonymously,
-  signInWithRedirect,
+  signInWithPopup,
 } from "firebase/auth";
 import clsx from "clsx";
 import * as Form from "@radix-ui/react-form";
@@ -78,7 +78,7 @@ export default function Page() {
             <Tabs.Content value="socialSignIn" className={styles.tabContainer}>
               <button
                 onClick={async () => {
-                  await signInWithRedirect(auth, new GoogleAuthProvider());
+                  await signInWithPopup(auth, new GoogleAuthProvider());
                   synchronizeWithBackend(auth);
                   router.push("/profile");
                 }}
@@ -98,7 +98,7 @@ export default function Page() {
               </button>
               <button
                 onClick={async () => {
-                  await signInWithRedirect(auth, new GoogleAuthProvider());
+                  await signInWithPopup(auth, new GoogleAuthProvider());
                   synchronizeWithBackend(auth);
                   router.push("/profile");
                 }}
