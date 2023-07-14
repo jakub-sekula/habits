@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import {
   GoogleAuthProvider,
   GithubAuthProvider,
-  signInWithPopup,
   signInAnonymously,
   signInWithPopup,
 } from "firebase/auth";
