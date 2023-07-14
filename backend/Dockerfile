@@ -26,7 +26,6 @@ RUN npm run database
 
 # Build app
 RUN npm run build
-RUN npm run seed
 
 # Run npm start script with PM2 when container starts
 CMD [ "pm2-runtime", "npm", "--", "start" ]
