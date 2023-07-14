@@ -8,10 +8,10 @@
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "database":"npx prisma generate && prisma migrate dev --name init ",
+    "database":"npx prisma generate && prisma migrate deploy",
     "seed":"node dist/prisma/seed.js",
     "build": "tsc && npx tsc-alias",
-    "migrate": "npx prisma migrate dev --name init",
+    "migrate": "npx prisma migrate deploy",
     "start": "node dist/src/server.js",
     "dev": "nodemon src/server.ts"
   },
