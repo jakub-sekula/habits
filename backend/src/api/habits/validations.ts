@@ -47,6 +47,7 @@ const getHabits = {
   query: Joi.object().keys({
     period: Joi.string().valid("day", "month", "year", "week"),
     sortBy: Joi.string(),
+    sortType: Joi.string().valid("asc", "desc"),
     limit: Joi.number().integer(),
     page: Joi.number().integer(),
     date: Joi.date(),

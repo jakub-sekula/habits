@@ -10,14 +10,17 @@ const prisma = new PrismaClient();
 
 async function getAllHabits(req: Request, res: Response) {
   // await new Promise((resolve) => setTimeout(resolve, 50));
+  const date = req.query.date ? new Date(req.query.date as string) : undefined;
+
   const filter = {
     user: { uid: (req.user as DecodedIdToken).uid },
+    // if date provided, only show habits older than this date
+    createdAt: {lte: date},
     ...pick(req.query, ["period"]),
   }; //pick(req.query, ['period']);
-  const options = pick(req.query, ["sortBy", "limit", "page"]);
-  const result = await habitServices.queryHabits(filter, options);
+  const options = pick(req.query, ["sortBy", "sortType", "limit", "page"]);
 
-  const date = req.query.date ? new Date(req.query.date as string) : undefined;
+  const result = await habitServices.queryHabits(filter, options);
 
   const habitsWithDetails = await Promise.all(
     result.habits.map(async (habit) => {
@@ -118,5 +121,3 @@ export default {
   updateHabit,
   deleteHabit,
 };
-
-
