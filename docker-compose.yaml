@@ -1,23 +1,23 @@
 version: "3.7"
 services:
-  backend:
+  habits-backend:
     build: ./backend
     volumes:
-    - "./volumes/data.db:/home/app/prisma/data.db"
-
-  frontend:
-    depends_on:
-      - backend
-    build: ./frontend
-
-  nginx:
-    depends_on:
-      - backend
-      - frontend
-    build: ./nginx
-    volumes:
-      - "/etc/letsencrypt/live/dev.jakubsekula.com/fullchain.pem:/etc/nginx/certificates/fullchain.pem"
-      - "/etc/letsencrypt/live/dev.jakubsekula.com/privkey.pem:/etc/nginx/certificates/privkey.pem"
+      - "./volumes/data.db:/home/app/prisma/data.db"
     ports:
-      - "80:80"
-      - "443:443"
+      - "3000:3000"
+    networks:
+      - deployment-server_jakubsekula-network
+
+  habits-frontend:
+    depends_on:
+      - habits-backend
+    build: ./frontend
+    ports:
+      - "3001:3001"
+    networks:
+      - deployment-server_jakubsekula-network
+
+networks:
+  deployment-server_jakubsekula-network:
+    external: true
